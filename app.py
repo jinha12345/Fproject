@@ -2,7 +2,7 @@
 #pyinstaller app.spec <- packaging code
 #5770097152 <- Password
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from password import passgen
 from drive import getStockxl
 import openpyxl
@@ -29,6 +29,7 @@ if hasattr(sys, '_MEIPASS'):
 app = Flask(__name__,
         static_folder=os.path.join(base_dir, 'static'),
         template_folder=os.path.join(base_dir, 'templates'))
+app.secret_key = 'your_secret_key_here'
 socketio = SocketIO(app)
 
 pong = False
@@ -143,6 +144,8 @@ def login():
 
                 maintain_session = True
                 return redirect(url_for('home'))
+            else:
+                flash('아이디 또는 비밀번호가 일치하지 않습니다.', 'error')
     
     return render_template('login.html')
 

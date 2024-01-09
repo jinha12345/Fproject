@@ -54,7 +54,21 @@
           <form>
             <input type="text" name="login" placeholder="아이디" aria-label="Login" autocomplete="nickname" required>
             <input type="password" name="password" placeholder="비밀번호" aria-label="Password" autocomplete="current-password" required>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="alert alert-error">
+                  {% for category, message in messages %}
+                    <p style="color: red;">{{ message }}</p>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
             <button type="submit" class="contrast">로그인</button>
+            {% if messages %}
+              <p class="error-message">
+                아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.
+              </p>
+            {% endif %}
           </form>
         </div>
         <div></div>
