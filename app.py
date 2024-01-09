@@ -1,3 +1,4 @@
+#pyinstaller -F -w app.py <- F는 파일하나. w는 윈도우 없이
 #pyinstaller app.spec <- packaging code
 #5770097152 <- Password
 
@@ -31,6 +32,7 @@ app = Flask(__name__,
 socketio = SocketIO(app)
 
 pong = False
+
 #Printing base dir for debugging
 #print(f'base_dir = {base_dir}')
 

@@ -28,3 +28,9 @@ datas=[('./DB', 'DB'),
 
 8. 맥의 임시파일 디렉토리는 base_dir = os.path.join(sys._MEIPASS) 를 활용해서 구할 수 있고, 
 /var/folders/y0/q03jfyf535q18hk6cqtmf9080000gn/T/_MEIPHh6ts 대략 이런 경로로 들어가면 된다. 
+
+9. ValueError: Invalid async_mode specified
+이 에러의 경우 socket.IO와 관련된 에러로, pyinstaller가 import될 세부 모듈들을 잘 못 갖고와서 생긴 오류이다. 
+app.spec파일에  hiddenimports=['engineio.async_drivers.threading'] 를 추가해주면 된다.
+
+10. 9번 에러를 해결하기 위해 gevent 모듈을 설치하는 순간 돌이킬 수 없는 강을 건너는 것이다. 바로 삭제해주자.

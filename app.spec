@@ -10,7 +10,7 @@ a = Analysis(
     ('./services', 'services'),
     ('./static', 'static'),
     ('./templates', 'templates')],
-    hiddenimports=[],
+    hiddenimports=['engineio.async_drivers.threading'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
