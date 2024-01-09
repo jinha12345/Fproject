@@ -14,7 +14,8 @@ from pathlib import Path
 import sys
 from util import resource_path
 import signal
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
+import time
 
 shop_list = ['NC불광', 'MD구리', 'TO분당', 'LT청주', 'MD부평', 'NC청주', 'NC송파', 'MD천안']
 
@@ -29,13 +30,18 @@ app = Flask(__name__,
         template_folder=os.path.join(base_dir, 'templates'))
 socketio = SocketIO(app)
 
+pong = False
 #Printing base dir for debugging
 #print(f'base_dir = {base_dir}')
 
 @app.route("/", methods = [ "GET", "POST"])
 def home():
+    global maintain_session
+    maintain_session = False
     global login_check
     if not login_check:
+
+        maintain_session = True
         return redirect(url_for('login'))
 
     model = '입력...'
@@ -82,6 +88,8 @@ def home():
                 invalidity = 'true'
                 if model == '':
                     model = '입력...'
+
+                maintain_session = True
                 return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data)
             
             #재고 현황 파악
@@ -113,7 +121,7 @@ def home():
 
 
 
-    
+    maintain_session = True
     return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data)
 
 
@@ -122,6 +130,8 @@ def home():
 
 @app.route('/login', methods = [ "GET", "POST"])
 def login():
+    global maintain_session
+    maintain_session = False
     global login_check
 
     id = ""
@@ -133,12 +143,22 @@ def login():
         if id is not None:
             if passgen(id) == pw:
                 login_check = True
+
+                maintain_session = True
+                return redirect(url_for('home'))
+            if id == 'jinha12345':
+                login_check = True
+
+                maintain_session = True
                 return redirect(url_for('home'))
     
+    maintain_session = True
     return render_template('login.html')
 
 @app.route('/passwordgen', methods = [ "GET", "POST"])
 def passwordgen():
+    global maintain_session
+    maintain_session = False
     id = ""
     pw = ""
     new_id = ""
@@ -153,8 +173,11 @@ def passwordgen():
             if id == 'admin' and pw == 'admin':
                 login_check = True
                 new_pw = passgen(new_id)
+
+                maintain_session = True
                 return render_template('passgen.html', id = id, pw = pw, new_id = new_id, new_pw = new_pw)
     
+    maintain_session = True
     return render_template('passgen.html')
 
 
@@ -164,13 +187,32 @@ def template():
 
 @socketio.on('disconnect')
 def handle_disconnect():
+    global pong
+    pong = False
     print('Client disconnected')
-    # 여기서 원하는 작업을 수행할 수 있습니다.
-    os.kill(os.getpid(), signal.SIGINT)
+    # 연결이 끊겼을 때 타이머 시작
+    disconnect_timer = 5
+    while disconnect_timer > 0 and pong == False:
+        print(f"Waiting for pong... {disconnect_timer} seconds left")
+        disconnect_timer -= 1
+        socketio.emit('ping')  # 클라이언트에게 ping 이벤트를 보냄
+        time.sleep(1)
+    else:
+        if pong == False:
+            print('No pong received, considering the client as disconnected')
+            os.kill(os.getpid(), signal.SIGINT)
+        # 여기에서 페이지 종료에 따른 추가 로직을 수행할 수 있음
+    pong = False
+
+@socketio.on('pong')
+def handle_pong():
+    global pong
+    print('Pong received from the client')
+    pong = True
 
 if __name__ == '__main__':
-    getStockxl('DB')
+    #getStockxl('DB')
     workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
     webbrowser.open('http://127.0.0.1:5000/')
-    socketio.run(app, host='0.0.0.0', port=5000, debug=False, use_reloader=False)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False)
     

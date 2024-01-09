@@ -13,23 +13,12 @@
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
 
     <!-- Custom styles for this example -->
-    <!--link rel="stylesheet" href="{{ url_for('static',filename='styles/custom.css') }}"-->
-    <!--link rel="stylesheet" href="{{ css_path }}"-->
     <!--link rel="stylesheet" href="/static/styles/custom.css"-->
-    <!--link rel="stylesheet" type= "text/css" href= "/services/custom.css"-->
-    <!-- HTML 파일에 아래 스크립트 추가 -->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-            window.addEventListener('beforeunload', function () {
-                // 브라우저가 닫힐 때 WebSocket을 통해 서버에 이벤트 전송
-                socket.emit('disconnect');
-            });
-        });
-    </script>
+    <!-- ping/pong -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.js"></script>
+    <script src="/static/styles/pingpong.js"></script>
+
 
   </head>
 
