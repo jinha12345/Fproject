@@ -36,12 +36,8 @@ pong = False
 
 @app.route("/", methods = [ "GET", "POST"])
 def home():
-    global maintain_session
-    maintain_session = False
     global login_check
     if not login_check:
-
-        maintain_session = True
         return redirect(url_for('login'))
 
     model = '입력...'
@@ -89,7 +85,6 @@ def home():
                 if model == '':
                     model = '입력...'
 
-                maintain_session = True
                 return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data)
             
             #재고 현황 파악
@@ -119,9 +114,6 @@ def home():
         else:
             model = '입력...'
 
-
-
-    maintain_session = True
     return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data)
 
 
@@ -130,8 +122,6 @@ def home():
 
 @app.route('/login', methods = [ "GET", "POST"])
 def login():
-    global maintain_session
-    maintain_session = False
     global login_check
 
     id = ""
@@ -152,13 +142,10 @@ def login():
                 maintain_session = True
                 return redirect(url_for('home'))
     
-    maintain_session = True
     return render_template('login.html')
 
 @app.route('/passwordgen', methods = [ "GET", "POST"])
 def passwordgen():
-    global maintain_session
-    maintain_session = False
     id = ""
     pw = ""
     new_id = ""
@@ -174,10 +161,8 @@ def passwordgen():
                 login_check = True
                 new_pw = passgen(new_id)
 
-                maintain_session = True
                 return render_template('passgen.html', id = id, pw = pw, new_id = new_id, new_pw = new_pw)
     
-    maintain_session = True
     return render_template('passgen.html')
 
 
