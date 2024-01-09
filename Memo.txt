@@ -1,0 +1,30 @@
+1. 오류
+/Users/jinhachang/Library/Python/3.9/lib/python/site-packages/openpyxl/worksheet/_reader.py:223: UserWarning: Cell A1281 is marked as a date but the serial value 20230921213731 is outside the limits for dates. The cell will be treated as an error.
+  warn(msg)
+/Users/jinhachang/Library/Python/3.9/lib/python/site-packages/openpyxl/worksheet/_reader.py:223: UserWarning: Cell A1284 is marked as a date but the serial value 20231110181126 is outside the limits for dates. The cell will be treated as an error.
+  warn(msg)
+/Users/jinhachang/Library/Python/3.9/lib/python/site-packages/openpyxl/worksheet/_reader.py:223: UserWarning: Cell A1285 is marked as a date but the serial value 20231112141541 is outside the limits for dates. The cell will be treated as an error.
+  warn(msg)
+/Users/jinhachang/Library/Python/3.9/lib/python/site-packages/openpyxl/worksheet/_reader.py:223: UserWarning: Cell A1286 is marked as a date but the serial value 20231114075853 is outside the limits for dates. The cell will be treated as an error.
+  warn(msg)
+/Users/jinhachang/Library/Python/3.9/lib/python/site-packages/openpyxl/worksheet/_reader.py:223: UserWarning: Cell A1287 is marked as a date but the serial value 20231114075853 is outside the limits for dates. The cell will be treated as an error.
+
+이런식으로 '삼성카드'시트의 값이 오류날 경우가 있는데, 그러면 계산된 셀의 결과가 안나오는 오류가 발생함. 그 경우 맥북에서 한번 저장되면 이러므로, 원본 그대로 다시 갖다 쓰면 해결됨. 이유는 모르겠음.
+
+2. 해결 - 없는사이즈 'blank'
+3. 해결 - 다시는 치게하고
+4. 해결 - 알파벳은 대문자소문자 둘다 되게(대문자로바뀌게)
+5. 해결 - 잘못치면 'blank'
+6. 해결 - 클릭하면 한번에 지워지게
+
+7. 오류
+app.spec 의 인자
+datas=[('./DB', 'DB'),
+    ('./googlefile', 'googlefile'),
+    ('./services', 'services'),
+    ('./static', 'static'),
+    ('./templates', 'templates')]
+의 경우, ./static/* 을 하면 뒤의 '파일들'만 가져온다. 즉, 폴더를 가져오지 않는다.
+
+8. 맥의 임시파일 디렉토리는 base_dir = os.path.join(sys._MEIPASS) 를 활용해서 구할 수 있고, 
+/var/folders/y0/q03jfyf535q18hk6cqtmf9080000gn/T/_MEIPHh6ts 대략 이런 경로로 들어가면 된다. 
