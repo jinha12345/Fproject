@@ -210,5 +210,5 @@ if __name__ == '__main__':
     getStockxl('DB')
     workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
     webbrowser.open('http://127.0.0.1:5000/')
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
     
