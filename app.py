@@ -82,6 +82,8 @@ def home():
             cloth_type_original = cloth_type
             cloth_type = cloth_type.lower()
             model = model.upper()
+            if len(model) == 9:
+                model = model[:5] + '-' + model[5:]
 
             if not isThere(workbook, model, cloth_type):
                 invalidity = 'true'
@@ -175,6 +177,10 @@ def passwordgen():
 def template():
     return render_template('template.html')
 
+@app.route('/flowbite')
+def flowbite():
+    return render_template('flowbite.html')
+
 @socketio.on('disconnect')
 def handle_disconnect():
     global pong
@@ -201,7 +207,7 @@ def handle_pong():
     pong = True
 
 if __name__ == '__main__':
-    #getStockxl('DB')
+    getStockxl('DB')
     workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
     webbrowser.open('http://127.0.0.1:5000/')
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False)
