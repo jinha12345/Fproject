@@ -1,334 +1,596 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko" data-theme="light" translate="no">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
+  <title>통합전산 판매재고조회</title>
 
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>재고현황조회</title>
-    <meta name="description" content="A basic custom template for Pico using only CSS custom properties (variables). Built with Pico CSS.">
-    <link rel="shortcut icon" href="https://picocss.com/favicon.ico">
-    <link rel="canonical" href="https://picocss.com/examples/basic-template/">
-
-    <!-- Pico.css -->
-    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
-
-    <!-- Custom template-->
-    <link rel="stylesheet" type= "text/css" href= "static/styles/custom.css">
-
-    <!-- page slide hold-->
-    <script src="/static/styles/pagehold.js"></script>
-
-    <!-- ping/pong -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.js"></script>
-    <script src="/static/styles/pingpong.js"></script>
-
-  </head>
-
-  <body>
-    <header class="container"><!-- ./ Header -->
-      <hgroup>
-        <h1>통합전산 판매재고조회</h1>
-        <h2>(주)피에이치오리테일</h2>
-      </hgroup>
-    </header>
-
-    <main class="container"><!-- Main -->
-      <form action="/"><!-- 종류모델명_1 -->
-        <div class="grid">
-          <div class="grid"><!-- 종류, 모델명, 조회 -->
-            <div><!-- 종류 -->
-                <label for="select">종류</label>
-                <select id="select" name="type" required>
-                  <option value="{{cloth_type}}" selected>선택…</option>
-                  <option{% if cloth_type == 'Mbtm' %} selected{% endif %}>Mbtm</option>
-                  <option{% if cloth_type == 'Wbtm' %} selected{% endif %}>Wbtm</option>
-                  <option{% if cloth_type == 'Mtop' %} selected{% endif %}>Mtop</option>
-                  <option{% if cloth_type == 'Wtop' %} selected{% endif %}>Wtop</option>
-                  <option{% if cloth_type == 'Acc' %} selected{% endif %}>Acc</option>
-                </select>
-            </div>
-            <div><!-- 모델명 -->
-              <label for="valid">
-                모델명
-                <input type="text" id="valid" name="model" placeholder="{{model}}" aria-invalid="{{invalidity}}" value="">
-              </label>
-            </div>
-            <div><!-- 버튼 -->
-              <label for="valid">
-                &nbsp
-                <input type="submit" value="조회">
-              </label>
-            </div>
+  <!-- ping/pong -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.js"></script>
+  <script src="/static/styles/pingpong.js"></script>
+</head>
+<body>
+  <div class="antialiased bg-gray-50 dark:bg-gray-900">
+    <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <div class="px-3 py-3 lg:px-5 lg:pl-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center justify-start rtl:justify-end">
+            <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                <span class="sr-only">Open sidebar</span>
+                <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                </svg>
+              </button>
+            <a href="https://flowbite.com" class="flex ms-2 md:me-24">
+              <img src="https://flowbite.com/docs/images/logo.svg" class="h-8 me-3" alt="FlowBite Logo" />
+              <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">PHOretail</span>
+            </a>
           </div>
-          <div class="grid"><!-- Season, MSRP -->
-            <div><!-- 시즌 -->
-              <label for="select">시즌</label>
-              <button class="contrast" onclick="event.preventDefault()">{{Season}}</button>
+          <div class="flex items-center">
+              <div class="flex items-center ms-3">
+                <div>
+                  <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" aria-expanded="false" data-dropdown-toggle="dropdown-user">
+                    <span class="sr-only">Open user menu</span>
+                    <img class="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo">
+                  </button>
+                </div>
+                <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-user">
+                  <div class="px-4 py-3" role="none">
+                    <p class="text-sm text-gray-900 dark:text-white" role="none">
+                      Neil Sims
+                    </p>
+                    <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
+                      neil.sims@flowbite.com
+                    </p>
+                  </div>
+                  <ul class="py-1" role="none">
+                    <li>
+                      <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Dashboard</a>
+                    </li>
+                    <li>
+                      <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Settings</a>
+                    </li>
+                    <li>
+                      <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Earnings</a>
+                    </li>
+                    <li>
+                      <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Sign out</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
-            <div><!-- MSRP -->
-              <label for="select">MSRP</label>
-              <button class="contrast" onclick="event.preventDefault()">{{MSRP}}</button>
+        </div>
+      </div>
+    </nav>
+    
+    <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700" aria-label="Sidebar">
+        <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
+          <ul class="space-y-2 font-medium">
+              <li>
+                <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                    <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                      <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"/>
+                      <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"/>
+                    </svg>
+                    <span class="ms-3">통합전산 판매재고조회</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                      <path d="M6.143 0H1.857A1.857 1.857 0 0 0 0 1.857v4.286C0 7.169.831 8 1.857 8h4.286A1.857 1.857 0 0 0 8 6.143V1.857A1.857 1.857 0 0 0 6.143 0Zm10 0h-4.286A1.857 1.857 0 0 0 10 1.857v4.286C10 7.169 10.831 8 11.857 8h4.286A1.857 1.857 0 0 0 18 6.143V1.857A1.857 1.857 0 0 0 16.143 0Zm-10 10H1.857A1.857 1.857 0 0 0 0 11.857v4.286C0 17.169.831 18 1.857 18h4.286A1.857 1.857 0 0 0 8 16.143v-4.286A1.857 1.857 0 0 0 6.143 10Zm10 0h-4.286A1.857 1.857 0 0 0 10 11.857v4.286c0 1.026.831 1.857 1.857 1.857h4.286A1.857 1.857 0 0 0 18 16.143v-4.286A1.857 1.857 0 0 0 16.143 10Z"/>
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">매장재고조회</span>
+                </a>
+              </li>
+              <!--li>
+                <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="m17.418 3.623-.018-.008a6.713 6.713 0 0 0-2.4-.569V2h1a1 1 0 1 0 0-2h-2a1 1 0 0 0-1 1v2H9.89A6.977 6.977 0 0 1 12 8v5h-2V8A5 5 0 1 0 0 8v6a1 1 0 0 0 1 1h8v4a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4h6a1 1 0 0 0 1-1V8a5 5 0 0 0-2.582-4.377ZM6 12H4a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2Z"/>
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Inbox</span>
+                    <span class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                      <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Users</span>
+                    <span class="inline-flex items-center justify-center px-2 ms-3 text-sm font-medium text-gray-800 bg-gray-100 rounded-full dark:bg-gray-700 dark:text-gray-300">Pro</span>
+
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
+                      <path d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.086 17.846A2 2 0 0 0 2.08 20h13.84a2 2 0 0 0 1.994-2.153L17 5.923ZM7 9a1 1 0 0 1-2 0V7h2v2Zm0-5a2 2 0 1 1 4 0v1H7V4Zm6 5a1 1 0 1 1-2 0V7h2v2Z"/>
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Products</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3"/>
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Sign In</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.96 2.96 0 0 0 .13 5H5Z"/>
+                      <path d="M6.737 11.061a2.961 2.961 0 0 1 .81-1.515l6.117-6.116A4.839 4.839 0 0 1 16 2.141V2a1.97 1.97 0 0 0-1.933-2H7v5a2 2 0 0 1-2 2H0v11a1.969 1.969 0 0 0 1.933 2h12.134A1.97 1.97 0 0 0 16 18v-3.093l-1.546 1.546c-.413.413-.94.695-1.513.81l-3.4.679a2.947 2.947 0 0 1-1.85-.227 2.96 2.96 0 0 1-1.635-3.257l.681-3.397Z"/>
+                      <path d="M8.961 16a.93.93 0 0 0 .189-.019l3.4-.679a.961.961 0 0 0 .49-.263l6.118-6.117a2.884 2.884 0 0 0-4.079-4.078l-6.117 6.117a.96.96 0 0 0-.263.491l-.679 3.4A.961.961 0 0 0 8.961 16Zm7.477-9.8a.958.958 0 0 1 .68-.281.961.961 0 0 1 .682 1.644l-.315.315-1.36-1.36.313-.318Zm-5.911 5.911 4.236-4.236 1.359 1.359-4.236 4.237-1.7.339.341-1.699Z"/>
+                    </svg>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Sign Up</span>
+                </a>
+              </li-->
+          </ul>
+        </div>
+    </aside>
+
+
+    <main class="p-4 md:ml-64 h-full pt-20">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-4 h-48">
+        <div class=""> <!--class="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600"-->
+          <div class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800 h-full">
+            <div class="w-full">
+              <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+                (주)피에이치오리테일
+              </h3>
+              <span class="text-2xl font-bold leading-none text-gray-900 sm:text-5xl dark:text-white">통합전산 판매재고조회</span>
             </div>
           </div>
         </div>
-      </form>
-        
-      <div class="grid"><!-- 표_1 -->
-        <div><!-- 재고조회 표 -->
-          <section id="tables">
-            <figure>
-              <label for="tables">재고조회</label>
-              <table role="grid">
-                <thead>
-                  <tr>
-                    <th scope="col">매장명</th>
-                    <td>{{stock_data['size'][0]}}</td>
-                    <td>{{stock_data['size'][1]}}</td>
-                    <td>{{stock_data['size'][2]}}</td>
-                    <td>{{stock_data['size'][3]}}</td>
-                    <td>{{stock_data['size'][4]}}</td>
-                    <td>{{stock_data['size'][5]}}</td>
-                    <td>{{stock_data['size'][6]}}</td>
-                    <td>{{stock_data['size'][7]}}</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">NC 불광</th>
-                    <td>{{stock_data['NC불광'][0]}}</td>
-                    <td>{{stock_data['NC불광'][1]}}</td>
-                    <td>{{stock_data['NC불광'][2]}}</td>
-                    <td>{{stock_data['NC불광'][3]}}</td>
-                    <td>{{stock_data['NC불광'][4]}}</td>
-                    <td>{{stock_data['NC불광'][5]}}</td>
-                    <td>{{stock_data['NC불광'][6]}}</td>
-                    <td>{{stock_data['NC불광'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">MD 구리</th>
-                    <td>{{stock_data['MD구리'][0]}}</td>
-                    <td>{{stock_data['MD구리'][1]}}</td>
-                    <td>{{stock_data['MD구리'][2]}}</td>
-                    <td>{{stock_data['MD구리'][3]}}</td>
-                    <td>{{stock_data['MD구리'][4]}}</td>
-                    <td>{{stock_data['MD구리'][5]}}</td>
-                    <td>{{stock_data['MD구리'][6]}}</td>
-                    <td>{{stock_data['MD구리'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2001 분당</th>
-                    <td>{{stock_data['TO분당'][0]}}</td>
-                    <td>{{stock_data['TO분당'][1]}}</td>
-                    <td>{{stock_data['TO분당'][2]}}</td>
-                    <td>{{stock_data['TO분당'][3]}}</td>
-                    <td>{{stock_data['TO분당'][4]}}</td>
-                    <td>{{stock_data['TO분당'][5]}}</td>
-                    <td>{{stock_data['TO분당'][6]}}</td>
-                    <td>{{stock_data['TO분당'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">LT 청주</th>
-                    <td>{{stock_data['LT청주'][0]}}</td>
-                    <td>{{stock_data['LT청주'][1]}}</td>
-                    <td>{{stock_data['LT청주'][2]}}</td>
-                    <td>{{stock_data['LT청주'][3]}}</td>
-                    <td>{{stock_data['LT청주'][4]}}</td>
-                    <td>{{stock_data['LT청주'][5]}}</td>
-                    <td>{{stock_data['LT청주'][6]}}</td>
-                    <td>{{stock_data['LT청주'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">MD 부평</th>
-                    <td>{{stock_data['MD부평'][0]}}</td>
-                    <td>{{stock_data['MD부평'][1]}}</td>
-                    <td>{{stock_data['MD부평'][2]}}</td>
-                    <td>{{stock_data['MD부평'][3]}}</td>
-                    <td>{{stock_data['MD부평'][4]}}</td>
-                    <td>{{stock_data['MD부평'][5]}}</td>
-                    <td>{{stock_data['MD부평'][6]}}</td>
-                    <td>{{stock_data['MD부평'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">NC 청주</th>
-                    <td>{{stock_data['NC청주'][0]}}</td>
-                    <td>{{stock_data['NC청주'][1]}}</td>
-                    <td>{{stock_data['NC청주'][2]}}</td>
-                    <td>{{stock_data['NC청주'][3]}}</td>
-                    <td>{{stock_data['NC청주'][4]}}</td>
-                    <td>{{stock_data['NC청주'][5]}}</td>
-                    <td>{{stock_data['NC청주'][6]}}</td>
-                    <td>{{stock_data['NC청주'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">NC 송파</th>
-                    <td>{{stock_data['NC송파'][0]}}</td>
-                    <td>{{stock_data['NC송파'][1]}}</td>
-                    <td>{{stock_data['NC송파'][2]}}</td>
-                    <td>{{stock_data['NC송파'][3]}}</td>
-                    <td>{{stock_data['NC송파'][4]}}</td>
-                    <td>{{stock_data['NC송파'][5]}}</td>
-                    <td>{{stock_data['NC송파'][6]}}</td>
-                    <td>{{stock_data['NC송파'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">MD 천안</th>
-                    <td>{{stock_data['MD천안'][0]}}</td>
-                    <td>{{stock_data['MD천안'][1]}}</td>
-                    <td>{{stock_data['MD천안'][2]}}</td>
-                    <td>{{stock_data['MD천안'][3]}}</td>
-                    <td>{{stock_data['MD천안'][4]}}</td>
-                    <td>{{stock_data['MD천안'][5]}}</td>
-                    <td>{{stock_data['MD천안'][6]}}</td>
-                    <td>{{stock_data['MD천안'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">계</th>
-                    <td>{{stock_data['계'][0]}}</td>
-                    <td>{{stock_data['계'][1]}}</td>
-                    <td>{{stock_data['계'][2]}}</td>
-                    <td>{{stock_data['계'][3]}}</td>
-                    <td>{{stock_data['계'][4]}}</td>
-                    <td>{{stock_data['계'][5]}}</td>
-                    <td>{{stock_data['계'][6]}}</td>
-                    <td>{{stock_data['계'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">창고</th>
-                    <td>{{ware_data['창고'][0]}}</td>
-                    <td>{{ware_data['창고'][1]}}</td>
-                    <td>{{ware_data['창고'][2]}}</td>
-                    <td>{{ware_data['창고'][3]}}</td>
-                    <td>{{ware_data['창고'][4]}}</td>
-                    <td>{{ware_data['창고'][5]}}</td>
-                    <td>{{ware_data['창고'][6]}}</td>
-                    <td>{{ware_data['창고'][7]}}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </figure>
+
+        <div class="h-40">
+          <div id="gallery" class="relative w-full" data-carousel="slide">
+            <!-- Carousel wrapper -->
+            <div class="relative h-56 overflow-hidden rounded-lg md:h-96" id="carousel-container"></div>
+                
+            <script>
+              function generateHTMLForImage(imageNum) {
+                  return `
+                      <!-- Item ${imageNum} -->
+                      <div class="hidden duration-700 ease-in-out" data-carousel-item${imageNum === 1 ? '="active"' : ''}>
+                          <img src="static/images/${imageNum}.jpg" class="absolute block max-w-full h-auto -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2" alt="">
+                      </div>
+                  `;
+              }
+          
+              function generateCarouselHTML(numImages) {
+                  let carouselHTML = '';
+                  for (let imageNum = 1; imageNum <= numImages; imageNum++) {
+                      carouselHTML += generateHTMLForImage(imageNum);
+                  }
+                  return carouselHTML;
+              }
+          
+              // 이미지 개수를 Flask에서 받아옵니다.
+              const numImages = {{Image_num}};
+          
+              // Get the container element where the carousel will be added
+              const carouselContainer = document.getElementById('carousel-container');
+          
+              // Generate HTML for the carousel and add it to the container
+              carouselContainer.innerHTML = generateCarouselHTML(numImages);
+            </script>
+
+            <!-- Slider controls -->
+            <button type="button" class="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-prev>
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
+                    <svg class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/>
+                    </svg>
+                    <span class="sr-only">Previous</span>
+                </span>
+            </button>
+            <button type="button" class="absolute top-0 end-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-next>
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
+                    <svg class="w-4 h-4 text-white dark:text-gray-800 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                    </svg>
+                    <span class="sr-only">Next</span>
+                </span>
+            </button>
+          </div>
         </div>
-        <div><!-- 판매조회 표 -->
-          <section id="tables">
-            <figure>
-              <label for="tables">판매조회</label>
-              <table role="grid">
-                <thead>
-                  <tr>
-                    <th scope="col">매장명</th>
-                    <td>{{sell_data['size'][0]}}</td>
-                    <td>{{sell_data['size'][1]}}</td>
-                    <td>{{sell_data['size'][2]}}</td>
-                    <td>{{sell_data['size'][3]}}</td>
-                    <td>{{sell_data['size'][4]}}</td>
-                    <td>{{sell_data['size'][5]}}</td>
-                    <td>{{sell_data['size'][6]}}</td>
-                    <td>{{sell_data['size'][7]}}</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">NC 불광</th>
-                    <td>{{sell_data['NC불광'][0]}}</td>
-                    <td>{{sell_data['NC불광'][1]}}</td>
-                    <td>{{sell_data['NC불광'][2]}}</td>
-                    <td>{{sell_data['NC불광'][3]}}</td>
-                    <td>{{sell_data['NC불광'][4]}}</td>
-                    <td>{{sell_data['NC불광'][5]}}</td>
-                    <td>{{sell_data['NC불광'][6]}}</td>
-                    <td>{{sell_data['NC불광'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">MD 구리</th>
-                    <td>{{sell_data['MD구리'][0]}}</td>
-                    <td>{{sell_data['MD구리'][1]}}</td>
-                    <td>{{sell_data['MD구리'][2]}}</td>
-                    <td>{{sell_data['MD구리'][3]}}</td>
-                    <td>{{sell_data['MD구리'][4]}}</td>
-                    <td>{{sell_data['MD구리'][5]}}</td>
-                    <td>{{sell_data['MD구리'][6]}}</td>
-                    <td>{{sell_data['MD구리'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2001 분당</th>
-                    <td>{{sell_data['TO분당'][0]}}</td>
-                    <td>{{sell_data['TO분당'][1]}}</td>
-                    <td>{{sell_data['TO분당'][2]}}</td>
-                    <td>{{sell_data['TO분당'][3]}}</td>
-                    <td>{{sell_data['TO분당'][4]}}</td>
-                    <td>{{sell_data['TO분당'][5]}}</td>
-                    <td>{{sell_data['TO분당'][6]}}</td>
-                    <td>{{sell_data['TO분당'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">LT 청주</th>
-                    <td>{{sell_data['LT청주'][0]}}</td>
-                    <td>{{sell_data['LT청주'][1]}}</td>
-                    <td>{{sell_data['LT청주'][2]}}</td>
-                    <td>{{sell_data['LT청주'][3]}}</td>
-                    <td>{{sell_data['LT청주'][4]}}</td>
-                    <td>{{sell_data['LT청주'][5]}}</td>
-                    <td>{{sell_data['LT청주'][6]}}</td>
-                    <td>{{sell_data['LT청주'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">MD 부평</th>
-                    <td>{{sell_data['MD부평'][0]}}</td>
-                    <td>{{sell_data['MD부평'][1]}}</td>
-                    <td>{{sell_data['MD부평'][2]}}</td>
-                    <td>{{sell_data['MD부평'][3]}}</td>
-                    <td>{{sell_data['MD부평'][4]}}</td>
-                    <td>{{sell_data['MD부평'][5]}}</td>
-                    <td>{{sell_data['MD부평'][6]}}</td>
-                    <td>{{sell_data['MD부평'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">NC 청주</th>
-                    <td>{{sell_data['NC청주'][0]}}</td>
-                    <td>{{sell_data['NC청주'][1]}}</td>
-                    <td>{{sell_data['NC청주'][2]}}</td>
-                    <td>{{sell_data['NC청주'][3]}}</td>
-                    <td>{{sell_data['NC청주'][4]}}</td>
-                    <td>{{sell_data['NC청주'][5]}}</td>
-                    <td>{{sell_data['NC청주'][6]}}</td>
-                    <td>{{sell_data['NC청주'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">NC 송파</th>
-                    <td>{{sell_data['NC송파'][0]}}</td>
-                    <td>{{sell_data['NC송파'][1]}}</td>
-                    <td>{{sell_data['NC송파'][2]}}</td>
-                    <td>{{sell_data['NC송파'][3]}}</td>
-                    <td>{{sell_data['NC송파'][4]}}</td>
-                    <td>{{sell_data['NC송파'][5]}}</td>
-                    <td>{{sell_data['NC송파'][6]}}</td>
-                    <td>{{sell_data['NC송파'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">MD 천안</th>
-                    <td>{{sell_data['MD천안'][0]}}</td>
-                    <td>{{sell_data['MD천안'][1]}}</td>
-                    <td>{{sell_data['MD천안'][2]}}</td>
-                    <td>{{sell_data['MD천안'][3]}}</td>
-                    <td>{{sell_data['MD천안'][4]}}</td>
-                    <td>{{sell_data['MD천안'][5]}}</td>
-                    <td>{{sell_data['MD천안'][6]}}</td>
-                    <td>{{sell_data['MD천안'][7]}}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">계</th>
-                    <td>{{sell_data['계'][0]}}</td>
-                    <td>{{sell_data['계'][1]}}</td>
-                    <td>{{sell_data['계'][2]}}</td>
-                    <td>{{sell_data['계'][3]}}</td>
-                    <td>{{sell_data['계'][4]}}</td>
-                    <td>{{sell_data['계'][5]}}</td>
-                    <td>{{sell_data['계'][6]}}</td>
-                    <td>{{sell_data['계'][7]}}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </figure>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-4 h-12">
+        <div class="">
+          <style>
+            #dropdown {
+              z-index: 9999; /* 원하는 값으로 조절하세요 */
+            }
+          </style>
+          <form>
+            <div class="flex">
+              <label for="search-dropdown" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Your Email</label>
+              <button id="dropdown-button" data-dropdown-toggle="dropdown" class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600" type="button" onclick="toggleDropdown()">{{cloth_type}} <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+              </svg></button>
+              <div id="dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+                <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-button">
+                  <li>
+                    <button type="button" class="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="updateSelection('Mbtm')">Mbtm</button>
+                  </li>
+                  <li>
+                    <button type="button" class="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="updateSelection('Wbtm')">Wbtm</button>
+                  </li>
+                  <li>
+                    <button type="button" class="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="updateSelection('Mtop')">Mtop</button>
+                  </li>
+                  <li>
+                    <button type="button" class="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="updateSelection('Wtop')">Wtop</button>
+                  </li>
+                  <li>
+                    <button type="button" class="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="updateSelection('Acc')">Acc</button>
+                  </li>
+                </ul>
+              </div>
+              <!-- 추가된 부분 -->
+              <input type="hidden" id="selectedType" name="type" value="{{cloth_type}}">
+              
+              <script>
+                function updateSelection(selectedType) {
+                  document.getElementById("dropdown-button").innerText = selectedType;
+                  document.getElementById("selectedType").value = selectedType; // 선택한 값 hidden input에 설정
+                  toggleDropdown(); // 드롭다운을 열고 닫음
+                }
+              
+                function toggleDropdown() {
+                  var dropdown = document.getElementById("dropdown");
+                  dropdown.classList.toggle("hidden"); // hidden 클래스를 토글
+                }
+              </script>
+              
+              <div class="relative w-full">
+                <input type="text" id="valid" name="model" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="{{model}}" required>
+                <button type="submit" value="조회" class="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-blue-700 rounded-e-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                  <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                  </svg>
+                  <span class="sr-only">Search</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              var dropdownButton = document.getElementById("dropdown-button");
+              var dropdownMenu = document.getElementById("dropdown");
+              var dropdownItems = dropdownMenu.querySelectorAll("button");
+          
+              dropdownItems.forEach(function (item) {
+                item.addEventListener("click", function () {
+                  dropdownButton.innerText = item.innerText;
+                  dropdownMenu.classList.add("hidden");
+                });
+              });
+            });
+          </script>
+        </div>
+
+        <div class="">
+
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div class="">
+          <div class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <div class="w-full">
+              <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+                Season
+              </h3>
+              <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white {% if invalidity|lower == 'true' %}text-red-500 dark:text-red-500{% endif %}">
+                {% if invalidity|lower == 'true' %}
+                  유효하지 않은 모델
+                {% else %}
+                  {{ Season }}
+                {% endif %}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="">
+          <div class="items-center justify-between p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:flex dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+            <div class="w-full">
+              <h3 class="text-base font-normal text-gray-500 dark:text-gray-400">
+                MSRP
+              </h3>
+              <span class="text-2xl font-bold leading-none text-gray-900 sm:text-3xl dark:text-white {% if invalidity|lower == 'true' %}text-red-500 dark:text-red-500{% endif %}">
+                {% if invalidity|lower == 'true' %}
+                  유효하지 않은 모델
+                {% else %}
+                  {{ MSRP }}
+                {% endif %}
+              </span>                  
+            </div>
+          </div>
+        </div>
+
+        <div class="">
+
+        </div>
+
+        <div class="">
+
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class=" h-auto md:h-150 overflow-y-auto">
+              <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                  <div class="overflow-y-auto">
+                      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                              <tr>
+                                  <th scope="col" class="px-4 py-3">매장명</th>
+                                  <th scope="col" class="px-4 py-3">{{stock_data['size'][0]}}</th>
+                                  <th scope="col" class="px-4 py-3">{{stock_data['size'][1]}}</th>
+                                  <th scope="col" class="px-4 py-3">{{stock_data['size'][2]}}</th>
+                                  <th scope="col" class="px-4 py-3">{{stock_data['size'][3]}}</th>
+                                  <th scope="col" class="px-4 py-3">{{stock_data['size'][4]}}</th>
+                                  <th scope="col" class="px-4 py-3">{{stock_data['size'][5]}}</th>
+                                  <th scope="col" class="px-4 py-3">{{stock_data['size'][6]}}</th>
+                                  <th scope="col" class="px-4 py-3">{{stock_data['size'][7]}}</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr class="border-b dark:border-gray-700">
+                                  <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">NC 불광</th>
+                                  <td class="px-4 py-3">{{stock_data['NC불광'][0]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC불광'][1]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC불광'][2]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC불광'][3]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC불광'][4]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC불광'][5]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC불광'][6]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC불광'][7]}}</td>
+                              </tr>
+                              <tr class="border-b dark:border-gray-700">
+                                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">MD 구리</th>
+                                  <td class="px-4 py-3">{{stock_data['MD구리'][0]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD구리'][1]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD구리'][2]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD구리'][3]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD구리'][4]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD구리'][5]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD구리'][6]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD구리'][7]}}</td>
+                              </tr>
+                              <tr class="border-b dark:border-gray-700">
+                                  <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">2001 분당</th>
+                                  <td class="px-4 py-3">{{stock_data['TO분당'][0]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['TO분당'][1]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['TO분당'][2]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['TO분당'][3]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['TO분당'][4]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['TO분당'][5]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['TO분당'][6]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['TO분당'][7]}}</td>
+                              </tr>
+                              <tr class="border-b dark:border-gray-700">
+                                  <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">LT 청주</th>
+                                  <td class="px-4 py-3">{{stock_data['LT청주'][0]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['LT청주'][1]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['LT청주'][2]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['LT청주'][3]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['LT청주'][4]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['LT청주'][5]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['LT청주'][6]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['LT청주'][7]}}</td>
+                              </tr>
+                              <tr class="border-b dark:border-gray-700">
+                                  <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">MD 부평</th>
+                                  <td class="px-4 py-3">{{stock_data['MD부평'][0]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD부평'][1]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD부평'][2]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD부평'][3]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD부평'][4]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD부평'][5]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD부평'][6]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD부평'][7]}}</td>
+                              </tr>
+                              <tr class="border-b dark:border-gray-700">
+                                  <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">NC 청주</th>
+                                  <td class="px-4 py-3">{{stock_data['NC청주'][0]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC청주'][1]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC청주'][2]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC청주'][3]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC청주'][4]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC청주'][5]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC청주'][6]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC청주'][7]}}</td>
+                              </tr>
+                              <tr class="border-b dark:border-gray-700">
+                                  <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">NC 송파</th>
+                                  <td class="px-4 py-3">{{stock_data['NC송파'][0]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC송파'][1]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC송파'][2]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC송파'][3]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC송파'][4]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC송파'][5]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC송파'][6]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['NC송파'][7]}}</td>
+                              </tr>
+                              <tr class="border-b dark:border-gray-700">
+                                  <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">MD 천안</th>
+                                  <td class="px-4 py-3">{{stock_data['MD천안'][0]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD천안'][1]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD천안'][2]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD천안'][3]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD천안'][4]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD천안'][5]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD천안'][6]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['MD천안'][7]}}</td>
+                              </tr>
+                              <tr class="border-b dark:border-gray-700">
+                                  <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">계</th>
+                                  <td class="px-4 py-3">{{stock_data['계'][0]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['계'][1]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['계'][2]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['계'][3]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['계'][4]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['계'][5]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['계'][6]}}</td>
+                                  <td class="px-4 py-3">{{stock_data['계'][7]}}</td>
+                              </tr>
+                              <tr class="border-b dark:border-gray-700">
+                                  <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">창고</th>
+                                  <td class="px-4 py-3">{{ware_data['창고'][0]}}</td>
+                                  <td class="px-4 py-3">{{ware_data['창고'][1]}}</td>
+                                  <td class="px-4 py-3">{{ware_data['창고'][2]}}</td>
+                                  <td class="px-4 py-3">{{ware_data['창고'][3]}}</td>
+                                  <td class="px-4 py-3">{{ware_data['창고'][4]}}</td>
+                                  <td class="px-4 py-3">{{ware_data['창고'][5]}}</td>
+                                  <td class="px-4 py-3">{{ware_data['창고'][6]}}</td>
+                                  <td class="px-4 py-3">{{ware_data['창고'][7]}}</td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+        </div>
+
+        <div class=" h-auto md:h-150 overflow-y-auto">
+          <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+              <div class="overflow-y-auto">
+                  <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                          <tr>
+                              <th scope="col" class="px-4 py-3">매장명</th>
+                              <th scope="col" class="px-4 py-3">{{sell_data['size'][0]}}</th>
+                              <th scope="col" class="px-4 py-3">{{sell_data['size'][1]}}</th>
+                              <th scope="col" class="px-4 py-3">{{stock_data['size'][2]}}</th>
+                              <th scope="col" class="px-4 py-3">{{stock_data['size'][3]}}</th>
+                              <th scope="col" class="px-4 py-3">{{stock_data['size'][4]}}</th>
+                              <th scope="col" class="px-4 py-3">{{sell_data['size'][5]}}</th>
+                              <th scope="col" class="px-4 py-3">{{sell_data['size'][6]}}</th>
+                              <th scope="col" class="px-4 py-3">{{sell_data['size'][7]}}</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr class="border-b dark:border-gray-700">
+                              <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">NC 불광</th>
+                              <td class="px-4 py-3">{{sell_data['NC불광'][0]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC불광'][1]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC불광'][2]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC불광'][3]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC불광'][4]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC불광'][5]}}</td>
+                              <td class="px-4 py-3">{{stock_data['NC불광'][6]}}</td>
+                              <td class="px-4 py-3">{{stock_data['NC불광'][7]}}</td>
+                          </tr>
+                          <tr class="border-b dark:border-gray-700">
+                            <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">MD 구리</th>
+                              <td class="px-4 py-3">{{sell_data['MD구리'][0]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD구리'][1]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD구리'][2]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD구리'][3]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD구리'][4]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD구리'][5]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD구리'][6]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD구리'][7]}}</td>
+                          </tr>
+                          <tr class="border-b dark:border-gray-700">
+                              <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">2001 분당</th>
+                              <td class="px-4 py-3">{{sell_data['TO분당'][0]}}</td>
+                              <td class="px-4 py-3">{{sell_data['TO분당'][1]}}</td>
+                              <td class="px-4 py-3">{{sell_data['TO분당'][2]}}</td>
+                              <td class="px-4 py-3">{{sell_data['TO분당'][3]}}</td>
+                              <td class="px-4 py-3">{{sell_data['TO분당'][4]}}</td>
+                              <td class="px-4 py-3">{{sell_data['TO분당'][5]}}</td>
+                              <td class="px-4 py-3">{{sell_data['TO분당'][6]}}</td>
+                              <td class="px-4 py-3">{{sell_data['TO분당'][7]}}</td>
+                          </tr>
+                          <tr class="border-b dark:border-gray-700">
+                              <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">LT 청주</th>
+                              <td class="px-4 py-3">{{sell_data['LT청주'][0]}}</td>
+                              <td class="px-4 py-3">{{sell_data['LT청주'][1]}}</td>
+                              <td class="px-4 py-3">{{sell_data['LT청주'][2]}}</td>
+                              <td class="px-4 py-3">{{sell_data['LT청주'][3]}}</td>
+                              <td class="px-4 py-3">{{sell_data['LT청주'][4]}}</td>
+                              <td class="px-4 py-3">{{sell_data['LT청주'][5]}}</td>
+                              <td class="px-4 py-3">{{sell_data['LT청주'][6]}}</td>
+                              <td class="px-4 py-3">{{sell_data['LT청주'][7]}}</td>
+                          </tr>
+                          <tr class="border-b dark:border-gray-700">
+                              <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">MD 부평</th>
+                              <td class="px-4 py-3">{{sell_data['MD부평'][0]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD부평'][1]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD부평'][2]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD부평'][3]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD부평'][4]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD부평'][5]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD부평'][6]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD부평'][7]}}</td>
+                          </tr>
+                          <tr class="border-b dark:border-gray-700">
+                              <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">NC 청주</th>
+                              <td class="px-4 py-3">{{sell_data['NC청주'][0]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC청주'][1]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC청주'][2]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC청주'][3]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC청주'][4]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC청주'][5]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC청주'][6]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC청주'][7]}}</td>
+                          </tr>
+                          <tr class="border-b dark:border-gray-700">
+                              <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">NC 송파</th>
+                              <td class="px-4 py-3">{{sell_data['NC송파'][0]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC송파'][1]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC송파'][2]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC송파'][3]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC송파'][4]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC송파'][5]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC송파'][6]}}</td>
+                              <td class="px-4 py-3">{{sell_data['NC송파'][7]}}</td>
+                          </tr>
+                          <tr class="border-b dark:border-gray-700">
+                              <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">MD 천안</th>
+                              <td class="px-4 py-3">{{sell_data['MD천안'][0]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD천안'][1]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD천안'][2]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD천안'][3]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD천안'][4]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD천안'][5]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD천안'][6]}}</td>
+                              <td class="px-4 py-3">{{sell_data['MD천안'][7]}}</td>
+                          </tr>
+                          <tr class="border-b dark:border-gray-700">
+                              <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">계</th>
+                              <td class="px-4 py-3">{{sell_data['계'][0]}}</td>
+                              <td class="px-4 py-3">{{sell_data['계'][1]}}</td>
+                              <td class="px-4 py-3">{{sell_data['계'][2]}}</td>
+                              <td class="px-4 py-3">{{sell_data['계'][3]}}</td>
+                              <td class="px-4 py-3">{{sell_data['계'][4]}}</td>
+                              <td class="px-4 py-3">{{sell_data['계'][5]}}</td>
+                              <td class="px-4 py-3">{{sell_data['계'][6]}}</td>
+                              <td class="px-4 py-3">{{sell_data['계'][7]}}</td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+          </div>
         </div>
       </div>
     </main>
-  </body>
+  </div>
+
+  <script src='https://flowbite.com/docs/flowbite.min.js'></script>
+  <!--script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script-->
+</body>
+</html>

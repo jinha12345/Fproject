@@ -17,6 +17,7 @@ from util import resource_path
 import signal
 from flask_socketio import SocketIO, emit
 import time
+from getImage import getImage
 
 shop_list = ['NC불광', 'MD구리', 'TO분당', 'LT청주', 'MD부평', 'NC청주', 'NC송파', 'MD천안']
 
@@ -36,7 +37,7 @@ pong = False
 
 #Printing base dir for debugging
 #print(f'base_dir = {base_dir}')
-
+'''
 @app.route("/", methods = [ "GET", "POST"])
 def home():
     global login_check
@@ -120,10 +121,127 @@ def home():
             model = '입력...'
 
     return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data)
+'''
+
+@app.route('/')
+def home():
+    global login_check
+    if not login_check:
+        return redirect(url_for('login'))
+
+    model = '입력...'
+    cloth_type = 'Mbtm'
+    MSRP = '조회시 출력'
+    Season = '조회시 출력'
+    cloth_type_original = 'Mbtm'
+    invalidity = 'false'
+    Image_num = 0
+    size = {'mbtm' : ['28','30','32','34','36','38','40','계'],
+            'wbtm' : ['23/30','24/31','25','26','27','28','29','계'],
+            'mtop' : ['85(XS)','90(S)','95(M)','100(L)','105(XL)','X','X','계'],
+            'wtop' : ['80(XS)','85(S)','90(M)','95(L)','X','X','X','계'],
+            'acc'  : ['70','75','90','95','100/F','X','X','계']}
+    
+    
+    initial_data = {'size' : ["", "", "", "", "", "", "", ""],
+                    'NC불광': ["", "", "", "", "", "", "", ""],
+                    'MD구리': ["", "", "", "", "", "", "", ""],
+                    'TO분당': ["", "", "", "", "", "", "", ""],
+                    'LT청주': ["", "", "", "", "", "", "", ""],
+                    'MD부평': ["", "", "", "", "", "", "", ""],
+                    'NC청주': ["", "", "", "", "", "", "", ""],
+                    'NC송파': ["", "", "", "", "", "", "", ""],
+                    'MD천안': ["", "", "", "", "", "", "", ""],
+                    '계'   : ["", "", "", "", "", "", "", ""]}
+    
+    ware_initial_data = {'창고' : ["", "", "", "", "", "", "", ""]}
+    
+    stock_data = copy.deepcopy(initial_data)
+    sell_data = copy.deepcopy(initial_data)
+    ware_data = copy.deepcopy(ware_initial_data)
+
+    if request.method == 'GET':
+        model = request.args.get("model")
+        #model = '04511-1907'
+        cloth_type = request.args.get("type")
+        #cloth_type = 'Mbtm'
+        print(f'Search_Call = model : {model}, type : {cloth_type}')
+
+        if model is not None and cloth_type is not None:
+            cloth_type_original = cloth_type
+            cloth_type = cloth_type.lower()
+            model = model.upper()
+            if len(model) == 9:
+                model = model[:5] + '-' + model[5:]
+
+            if not isThere(workbook, model, cloth_type):
+                invalidity = 'true'
+                if model == '':
+                    model = '입력...'
+
+                return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data)
+            
+            #재고 현황 파악
+            for shop in shop_list:
+                stock_data[shop] = getby(workbook, shop, model, cloth_type, is_stock = True)
+            stock_data['size'] = size[cloth_type]
+            print(stock_data)
+            stock_data['계'] = [sum(val if isinstance(val, (int, float)) else 0 for val in column) if any(isinstance(val, (int, float)) for val in column) else None for column in zip(*list(stock_data.values())[1:-1])]
+            for key, values in stock_data.items():
+                stock_data[key] = [value if value is not None else "" for value in values]
 
 
+            #판매 현황 파악
+            for shop in shop_list:
+                sell_data[shop] = getby(workbook, shop, model, cloth_type, is_stock = False)
+            sell_data['size'] = size[cloth_type]
+            print(sell_data)
+            sell_data['계'] = [sum(val if isinstance(val, (int, float)) else 0 for val in column) if any(isinstance(val, (int, float)) for val in column) else None for column in zip(*list(sell_data.values())[1:-1])]
+            for key, values in sell_data.items():
+                sell_data[key] = [value if value is not None else "" for value in values]
+
+            #임시 창고 재고 파악
+            ware_data['창고'] = getby(workbook, '창고', model, cloth_type, is_stock = True)
+            for key, values in ware_data.items():
+                ware_data[key] = [value if value is not None else "" for value in values]
+
+            #이미지 다운로드
+            Image_num = getImage(model, resource_path("static/images"))
+            
+            MSRP = Myfunctions.format_price(getMSRP(workbook, model, cloth_type))
+            Season = getSeason(workbook, model, cloth_type)
+        else:
+            model = '입력...'
+    return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, Image_num = Image_num)
 
 
+'''
+@app.route('/login', methods = [ "GET", "POST"])
+def login():
+    global login_check
+
+    id = ""
+    pw = ""
+
+    if request.method == 'GET':
+        id = request.args.get("login")
+        pw = request.args.get("password")
+        if id is not None:
+            if passgen(id) == pw:
+                login_check = True
+
+                maintain_session = True
+                return redirect(url_for('home'))
+            if id == 'jinha12345':
+                login_check = True
+
+                maintain_session = True
+                return redirect(url_for('home'))
+            else:
+                flash('아이디 또는 비밀번호가 일치하지 않습니다.', 'error')
+    
+    return render_template('login.html')
+'''
 
 @app.route('/login', methods = [ "GET", "POST"])
 def login():
@@ -151,6 +269,7 @@ def login():
     
     return render_template('login.html')
 
+'''
 @app.route('/passwordgen', methods = [ "GET", "POST"])
 def passwordgen():
     id = ""
@@ -171,15 +290,33 @@ def passwordgen():
                 return render_template('passgen.html', id = id, pw = pw, new_id = new_id, new_pw = new_pw)
     
     return render_template('passgen.html')
+'''
+
+@app.route('/passwordgen', methods = [ "GET", "POST"])
+def passwordgen():
+    id = ""
+    pw = ""
+    new_id = ""
+    new_pw = ""
+    login_check = False
+
+    if request.method == 'GET':
+        id = request.args.get("login")
+        pw = request.args.get("password")
+        new_id = request.args.get("IDID")
+        if id is not None:
+            if id == 'admin' and pw == 'admin':
+                login_check = True
+                new_pw = passgen(new_id)
+
+                return render_template('passwordgen.html', id = id, pw = pw, new_id = new_id, new_pw = new_pw)
+    
+    return render_template('passwordgen.html')
 
 
 @app.route('/template')
 def template():
     return render_template('template.html')
-
-@app.route('/flowbite')
-def flowbite():
-    return render_template('flowbite.html')
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -207,8 +344,13 @@ def handle_pong():
     pong = True
 
 if __name__ == '__main__':
-    getStockxl('DB')
+    #이건 실사용시 불러올 workbook
+    #getStockxl('DB')
     workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
+
+    #이건 디버깅시 불러올 workbook
+    #workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
+
     webbrowser.open('http://127.0.0.1:5000/')
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
     
