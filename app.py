@@ -345,11 +345,11 @@ def handle_pong():
 
 if __name__ == '__main__':
     #이건 실사용시 불러올 workbook
-    #getStockxl('DB')
-    #workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
+    getStockxl('DB')
+    workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
 
     #이건 디버깅시 불러올 workbook
-    workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
+    #workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
 
     webbrowser.open('http://127.0.0.1:5000/')
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
