@@ -4,7 +4,7 @@
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from password import passgen
-from drive import getStockxl
+from drive import getStockxl, DownloadJsonKey
 import openpyxl
 from getfromDB import getby, getMSRP, getSeason, isThere
 import copy
@@ -344,6 +344,7 @@ def handle_pong():
     pong = True
 
 if __name__ == '__main__':
+    DownloadJsonKey(resource_path("googlefile"))
     #이건 실사용시 불러올 workbook
     getStockxl('DB')
     workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)

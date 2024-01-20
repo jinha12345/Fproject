@@ -54,6 +54,22 @@ def find_file_id_by_name(service, folder_id, file_name):
     print(f'File "{file_name}" not found in the folder.')
     return None
 
+def find_folder_id_by_name(service, parent_folder_id, folder_name):
+    results = service.files().list(q=f"'{parent_folder_id}' in parents and mimeType='application/vnd.google-apps.folder'", fields="files(id, name)").execute()
+    folders = results.get('files', [])
+
+    if not folders:
+        print('No folders found in the parent folder.')
+        return None
+
+    for folder in folders:
+        if folder['name'] == folder_name:
+            return folder['id']
+
+    print(f'Folder "{folder_name}" not found in the parent folder.')
+    return None
+
+
 def download_file(service, file_id, file_name, save_directory=None, save_as_name=None):
     request = service.files().get_media(fileId=file_id)
 
@@ -87,9 +103,6 @@ def download(file_name, TO_NAME=None, save_directory=None, FOLDER_ID='root'):
 # 예시: "jinha.txt" 파일을 다운로드하고 특정 디렉토리에 저장
 # download("jinha.txt", TO_NAME='aa.txt', save_directory='/path/to/your/directory')
 
-def normalize_filename(filename):
-    return ''.join(c for c in unicodedata.normalize('NFD', filename) if unicodedata.category(c) != 'Mn')
-
 def getStockxl(save_directory):
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
@@ -107,7 +120,6 @@ def getStockxl(save_directory):
 
     for file_info in files:
         file_name = file_info['name']
-        #file_name = normalize_filename(file_name)
         match = file_pattern.match(file_name)
 
         if match:
@@ -143,3 +155,56 @@ def getStockxl(save_directory):
 
 # 예시: 특정 디렉토리에 최신 Stock 파일 다운로드
 # getStockxl('/path/to/your/directory')
+        
+
+def get_latest_named_folder_id(service, parent_folder_id):
+    results = service.files().list(
+        q=f"'{parent_folder_id}' in parents and mimeType='application/vnd.google-apps.folder'",
+        fields="files(id, name)",
+        orderBy="name desc"
+    ).execute()
+
+    folders = results.get('files', [])
+
+    if not folders:
+        print('No folders found in the parent folder.')
+        return None
+
+    latest_named_folder = folders[0]['id']  # 가장 최신 폴더의 ID로 초기화
+    latest_name = folders[0]['name']
+
+    for folder in folders[1:]:
+        if folder['name'] > latest_name:
+            latest_name = folder['name']
+            latest_named_folder = folder['id']
+
+    return latest_named_folder, latest_name
+
+def DownloadJsonKey(directory):
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('drive', 'v3', http=http)
+
+    # 'GoogleDriveKeys' 폴더의 ID를 찾기
+    drive_keys_folder_id = find_folder_id_by_name(service, 'root', 'GoogleDriveKeys')
+
+    if drive_keys_folder_id:
+        # 최신 폴더명으로 폴더 선택
+        latest_named_folder = get_latest_named_folder_id(service, drive_keys_folder_id)
+        latest_named_folder_name = latest_named_folder[1]
+        latest_named_folder_id = latest_named_folder[0]
+
+        if latest_named_folder_id:
+            # 'drive-python-download.json' 파일 ID 찾기
+            json_file_id = find_file_id_by_name(service, latest_named_folder_id, 'drive-python-download.json')
+
+            if json_file_id:
+                # 파일 다운로드
+                download_file(service, json_file_id, 'drive-python-download.json', save_directory=directory)
+                print(f'Updated drive-python-download.json by version {latest_named_folder_name}')
+            else:
+                print('No "drive-python-download.json" file found in the latest named folder.')
+        else:
+            print('No folder found in "GoogleDriveKeys" folder.')
+    else:
+        print('No "GoogleDriveKeys" folder found in the root directory.')
