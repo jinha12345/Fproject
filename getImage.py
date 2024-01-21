@@ -5,7 +5,7 @@ import time
 import threading
 
 def getImage(model, image_path):
-    time.sleep(10)
+    #time.sleep(10)
     URL_init = 'https://lsco.scene7.com/is/image/lsco/'
     if len(model) != 10 or model[5] != '-':
         return 0

@@ -40,3 +40,11 @@ app.spec파일에  hiddenimports=['engineio.async_drivers.threading'] 를 추가
 12. 
 해상도 1000, 쓰레드 4 = 2.41
 해상도 2000, 쓰레드 4 = 3.65
+
+13. 세션을 종료하는 기능을 결국은 ...
+    if 무언가 함수가 작동중일때..:
+      get pong 함수가 작동하지 않으므로, 함수 작동중(something_doing)임을 global하게 표시하고 이를 확인.
+    if 함수가 작동중이지 않을때..:
+      get pong 함수가 작동하므로, 주기적인 ping테스트에 대한 응답확인으로 세션 만료 확인.
+
+
