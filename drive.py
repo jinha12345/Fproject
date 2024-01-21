@@ -1,6 +1,7 @@
 from __future__ import print_function
 import httplib2
 import os
+import platform
 
 from googleapiclient import discovery
 from oauth2client import client
@@ -14,6 +15,7 @@ from datetime import datetime
 import re
 import unicodedata
 from util import resource_path
+import shutil
 
 CREDENTIAL_DIR = resource_path('./googlefile')
 CREDENTIAL_FILENAME = 'drive-python-download.json'
@@ -180,7 +182,7 @@ def get_latest_named_folder_id(service, parent_folder_id):
 
     return latest_named_folder, latest_name
 
-def DownloadJsonKey(directory):
+def JsonKeyDrive2Temp(directory):
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('drive', 'v3', http=http)
@@ -208,3 +210,64 @@ def DownloadJsonKey(directory):
             print('No folder found in "GoogleDriveKeys" folder.')
     else:
         print('No "GoogleDriveKeys" folder found in the root directory.')
+
+
+def JsonKeyAppdata2Temp():
+    # AppData 경로 설정
+    if os.name == "nt":  # Windows
+        appdata_path = os.path.join(os.path.expandvars("%APPDATA%"), "Local", "PHOretail")
+    elif os.name == "posix":  # Mac
+        appdata_path = os.path.join(os.path.expanduser("~/Library/Application Support"), "PHOretail")
+    else:
+        print("Unsupported operating system.")
+        return
+
+    # PHOretail 폴더 생성 (없을 경우)
+    if not os.path.exists(appdata_path):
+        os.makedirs(appdata_path)
+        print("Made PHOretail folder in appdata")
+
+    # JSON 파일 경로 설정
+    json_file_path = os.path.join(appdata_path, "drive-python-download.json")
+
+    # Temp 폴더 경로 설정
+    temp_folder_path = resource_path("googlefile")
+
+    # JSON 파일 존재 여부 확인
+    if os.path.exists(json_file_path):
+        # JSON 파일을 Temp 폴더로 복사
+        shutil.copy(json_file_path, temp_folder_path)
+        print(f"drive-python-download.json copied to: {temp_folder_path}")
+    else:
+        print("There is no drive-python-download.json in appdata.")
+
+def JsonKeyTemp2Appdata():
+    # AppData 경로 설정
+    if os.name == "nt":  # Windows
+        appdata_path = os.path.join(os.path.expandvars("%APPDATA%"), "Local", "PHOretail")
+    elif os.name == "posix":  # Mac
+        appdata_path = os.path.join(os.path.expanduser("~/Library/Application Support"), "PHOretail")
+    else:
+        print("Unsupported operating system.")
+        return
+
+    # PHOretail 폴더 생성 (없을 경우)
+    if not os.path.exists(appdata_path):
+        os.makedirs(appdata_path)
+        print("Made PHOretail folder in appdata")
+
+    # JSON 파일 경로 설정
+    json_file_path = os.path.join(resource_path("googlefile"), "drive-python-download.json")
+
+    # JSON 파일 존재 여부 확인
+    if os.path.exists(json_file_path):
+        # JSON 파일을 Temp 폴더로 복사
+        shutil.copy(json_file_path, appdata_path)
+        print(f"drive-python-download.json copied to: {appdata_path}")
+    else:
+        print("There is no drive-python-download.json in temp.")
+
+def JsonKeySync():
+    JsonKeyAppdata2Temp()
+    JsonKeyDrive2Temp(resource_path("googlefile"))
+    JsonKeyTemp2Appdata()

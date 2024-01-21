@@ -4,7 +4,7 @@
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from password import passgen
-from drive import getStockxl, DownloadJsonKey
+from drive import getStockxl, JsonKeySync
 import openpyxl
 from getfromDB import getby, getMSRP, getSeason, isThere
 import copy
@@ -18,8 +18,8 @@ import signal
 from flask_socketio import SocketIO, emit
 import time
 from getImage import getImage
-import asyncio
-import threading
+#import asyncio
+#import threading
 
 shop_list = ['NC불광', 'MD구리', 'TO분당', 'LT청주', 'MD부평', 'NC청주', 'NC송파', 'MD천안']
 
@@ -40,13 +40,6 @@ pong = False
 #Printing base dir for debugging
 #print(f'base_dir = {base_dir}')
 
-async def getImage_async(model, image_path):
-    global Image_num
-    loop = asyncio.get_event_loop()
-    Image_num = await loop.run_in_executor(None, getImage, model, image_path)
-
-def getImage_background(model, image_path):
-    asyncio.run(getImage_async(model, image_path))
 '''
 @app.route("/", methods = [ "GET", "POST"])
 def home():
@@ -136,8 +129,6 @@ def home():
 @app.route('/')
 def home():
     global login_check
-    global Image_num
-
     if not login_check:
         return redirect(url_for('login'))
 
@@ -148,7 +139,6 @@ def home():
     cloth_type_original = 'Mbtm'
     invalidity = 'false'
     Image_num = 0
-
     size = {'mbtm' : ['28','30','32','34','36','38','40','계'],
             'wbtm' : ['23/30','24/31','25','26','27','28','29','계'],
             'mtop' : ['85(XS)','90(S)','95(M)','100(L)','105(XL)','X','X','계'],
@@ -219,8 +209,7 @@ def home():
                 ware_data[key] = [value if value is not None else "" for value in values]
 
             #이미지 다운로드
-            thread = threading.Thread(target=getImage_background(model, resource_path("static/images")))
-            thread.start()
+            Image_num = getImage(model, resource_path("static/images"))
             
             MSRP = Myfunctions.format_price(getMSRP(workbook, model, cloth_type))
             Season = getSeason(workbook, model, cloth_type)
@@ -358,14 +347,15 @@ def handle_pong():
     pong = True
 
 if __name__ == '__main__':
-    #DownloadJsonKey(resource_path("googlefile"))
+    #JsonKey를 drive, temp, appdata 동기화
+    JsonKeySync()
 
     #이건 실사용시 불러올 workbook
-    #getStockxl('DB')
-    #workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
+    getStockxl('DB')
+    workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
 
     #이건 디버깅시 불러올 workbook
-    workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
+    #workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
 
     webbrowser.open('http://127.0.0.1:5000/')
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
