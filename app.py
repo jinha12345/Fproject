@@ -36,6 +36,7 @@ app.secret_key = 'your_secret_key_here'
 socketio = SocketIO(app)
 
 pong = False
+something_doing = False
 
 #Printing base dir for debugging
 #print(f'base_dir = {base_dir}')
@@ -128,10 +129,13 @@ def home():
 
 @app.route('/')
 def home():
+    global something_doing
     global login_check
     if not login_check:
         return redirect(url_for('login'))
 
+    something_doing = True
+    print('something_doing = True')
     model = '입력...'
     cloth_type = 'Mbtm'
     MSRP = '조회시 출력'
@@ -215,6 +219,7 @@ def home():
             Season = getSeason(workbook, model, cloth_type)
         else:
             model = '입력...'
+
     return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, Image_num = Image_num)
 
 
@@ -248,8 +253,11 @@ def login():
 
 @app.route('/login', methods = [ "GET", "POST"])
 def login():
+    global something_doing
     global login_check
 
+    something_doing = True
+    
     id = ""
     pw = ""
 
@@ -317,45 +325,57 @@ def passwordgen():
     return render_template('passwordgen.html')
 
 
-@app.route('/template')
-def template():
-    return render_template('template.html')
-
 @socketio.on('disconnect')
 def handle_disconnect():
-    global pong
-    pong = False
+    #global pong
+    global something_doing
+    #pong = False
     print('Client disconnected')
+
+    if something_doing:
+        print('But something doing...')
+        something_doing = False
+        return
+
     # 연결이 끊겼을 때 타이머 시작
     disconnect_timer = 5
-    while disconnect_timer > 0 and pong == False:
-        print(f"Waiting for pong... {disconnect_timer} seconds left")
+    while disconnect_timer > 0:# and pong == False:
+        if something_doing:
+            print('But something doing...')
+            something_doing = False
+            return
+        #print(f"Waiting for pong... {disconnect_timer} seconds left")
+        print(f"Waiting for something doing... {disconnect_timer} seconds left")
         disconnect_timer -= 1
-        socketio.emit('ping')  # 클라이언트에게 ping 이벤트를 보냄
+        #socketio.emit('ping')  # 클라이언트에게 ping 이벤트를 보냄
         time.sleep(1)
     else:
-        if pong == False:
-            print('No pong received, considering the client as disconnected')
+        #if pong == False:
+        if not something_doing:
+            #print('No pong received, considering the client as disconnected')
+            print('Doing nothing, considering the client as disconnected')
             os.kill(os.getpid(), signal.SIGINT)
         # 여기에서 페이지 종료에 따른 추가 로직을 수행할 수 있음
-    pong = False
+    #pong = False
 
+'''
 @socketio.on('pong')
 def handle_pong():
     global pong
     print('Pong received from the client')
     pong = True
+'''
 
 if __name__ == '__main__':
     #JsonKey를 drive, temp, appdata 동기화
-    JsonKeySync()
+    #JsonKeySync()
 
     #이건 실사용시 불러올 workbook
-    getStockxl('DB')
-    workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
+    #getStockxl('DB')
+    #workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
 
     #이건 디버깅시 불러올 workbook
-    #workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
+    workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
 
     webbrowser.open('http://127.0.0.1:5000/')
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
