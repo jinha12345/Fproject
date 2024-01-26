@@ -17,7 +17,7 @@ from util import resource_path
 import signal
 from flask_socketio import SocketIO, emit
 import time
-from getImage import getImage
+from getImage import getImage, check_urls_parallel
 #import asyncio
 #import threading
 
@@ -146,6 +146,7 @@ def home():
     cloth_type_original = 'Mbtm'
     invalidity = 'false'
     Image_num = 0
+    URLs=[]
     size = {'mbtm' : ['28'     ,'30'   ,'32'   ,'34'    ,'36'     ,'38','40','계'],
             'wbtm' : ['23/30'  ,'24/31','25'   ,'26'    ,'27'     ,'28','29','계'],
             'mtop' : ['85(XS)' ,'90(S)','95(M)','100(L)','105(XL)','X' ,'X' ,'계'],
@@ -217,15 +218,18 @@ def home():
                 ware_data[key] = [value if value is not None else "" for value in values]
 
             #이미지 다운로드
-            Image_num = getImage(model, resource_path("static/images"))
-            
+            #Image_num = getImage(model, resource_path("static/images"))
+            #URL TEST
+            URLs = check_urls_parallel(getImage(model, '', only_URLs=True))
+            #URLs = ['https://lsco.scene7.com/is/image/lsco/288331183-front-pdp-lse?fmt=avif&qlt=40&resMode=bisharp&fit=crop,0&op_usm=0.6,0.6,8&wid=155&hei=155']
+
             MSRP = Myfunctions.format_price(getMSRP(workbook, model, cloth_type))
             Season = getSeason(workbook, model, cloth_type)
         else:
             model = '입력...'
     something_doing = False
     print('something_doing = False : 227')
-    return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, Image_num = Image_num)
+    return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, URLs = URLs)
 
 
 '''
@@ -381,16 +385,15 @@ def handle_pong():
 
 if __name__ == '__main__':
     #JsonKey를 drive, temp, appdata 동기화
-    JsonKeySync()
+    #JsonKeySync()
 
     #이건 실사용시 불러올 workbook
-    getStockxl('DB')
-    workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
+    #getStockxl('DB')
+    #workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
 
     #이건 디버깅시 불러올 workbook
-    #workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
+    workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
 
     webbrowser.open('http://127.0.0.1:5000/')
     socketio.run(app, host='0.0.0.0', port=5000, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
     #dddd
-    

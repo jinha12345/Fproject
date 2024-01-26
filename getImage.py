@@ -3,8 +3,9 @@ import requests
 from concurrent.futures import ThreadPoolExecutor
 import time
 import threading
+import concurrent.futures
 
-def getImage(model, image_path):
+def getImage(model, image_path, only_URLs = False):
     #time.sleep(10)
     URL_init = 'https://lsco.scene7.com/is/image/lsco/'
     if len(model) != 10 or model[5] != '-':
@@ -25,6 +26,9 @@ def getImage(model, image_path):
                 URLs.append(URL_init + URL_model + i + j + k + URL_command)
     for i in URL_remainders:
         URLs.append(URL_init + URL_model + i + URL_command)
+    
+    if only_URLs == True:
+        return URLs
 
     start_time = time.time()
     # ThreadPoolExecutor를 사용하여 다중 스레딩으로 이미지 다운로드
@@ -84,3 +88,29 @@ def download_images_parallel(urls, folder_path, num_threads=32):
 
 # getImage 함수 호출
 # print(getImage('18883-0107', 'image22s'))
+    
+def is_url_valid(url):
+    try:
+        response = requests.head(url, timeout=5)
+        return response.status_code == 200
+    except requests.exceptions.RequestException:
+        return False
+
+def check_urls_parallel(urls):
+    valid_urls = []
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # 각 URL에 대해 병렬로 is_url_valid 함수를 호출
+        futures = {executor.submit(is_url_valid, url): url for url in urls}
+        for future in concurrent.futures.as_completed(futures):
+            url = futures[future]
+            try:
+                if future.result():
+                    valid_urls.append(url)
+            except Exception as e:
+                print(f"Error checking URL {url}: {e}")
+    return valid_urls
+
+# 테스트를 위한 URLs
+URLs = getImage('A7223-0002', '', True)
+#valid_urls = check_urls_parallel(URLs)
+#print("Valid URLs:", valid_urls)

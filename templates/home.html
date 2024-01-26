@@ -25,7 +25,7 @@
                 </svg>
               </button>
             <a href="https://flowbite.com" class="flex ms-2 md:me-24" onclick="return false;">
-              <img src="https://flowbite.com/docs/images/logo.svg" class="h-8 me-3" alt="FlowBite Logo" />
+              <img src="static/logo.svg" class="h-8 me-3" alt="FlowBite Logo" />
               <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">PHOretail</span>
             </a>
           </div>
@@ -34,7 +34,7 @@
                 <div>
                   <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" aria-expanded="false" data-dropdown-toggle="dropdown-user">
                     <span class="sr-only">Open user menu</span>
-                    <img class="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo">
+                    <img class="w-8 h-8 rounded-full" src="static/profile-picture-5.jpg" alt="user photo">
                   </button>
                 </div>
                 <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-user">
@@ -156,32 +156,69 @@
             <div class="relative h-56 overflow-hidden rounded-lg md:h-96" id="carousel-container"></div>
                 
             <script>
-              function generateHTMLForImage(imageNum) {
-                  return `
-                      <!-- Item ${imageNum} -->
-                      <div class="hidden duration-700 ease-in-out" data-carousel-item${imageNum === 1 ? '="active"' : ''}>
-                          <img src="static/images/${imageNum}.jpg" class="absolute w-full h-full object-cover" alt="">
-                      </div>
-                  `;
+              function generateHTMLForImage(imageNum, imageUrl) {
+                return `
+                  <!-- Item ${imageNum} -->
+                  <div class="hidden duration-700 ease-in-out" data-carousel-item${imageNum === 1 ? '="active"' : ''}>
+                    <img src="${imageUrl}" loading="lazy" class="absolute w-full h-full object-cover" alt="">
+                  </div>
+                `;
               }
-          
-              function generateCarouselHTML(numImages) {
-                  let carouselHTML = '';
-                  for (let imageNum = 1; imageNum <= numImages; imageNum++) {
-                      carouselHTML += generateHTMLForImage(imageNum);
-                  }
-                  return carouselHTML;
+            
+              function generateCarouselHTML(imageURLs) {
+                if (imageURLs.length === 0) {
+                  // URLs의 개수가 0인 경우, 기본 이미지만 반환
+                  return generateHTMLForImage(0, '/static/xbox.jpg');
+                }
+            
+                let carouselHTML = '';
+                imageURLs.forEach((url, index) => {
+                  const imageNum = index + 1;
+                  carouselHTML += generateHTMLForImage(imageNum, url);
+                });
+                return carouselHTML;
               }
-          
-              // 이미지 개수를 Flask에서 받아옵니다.
-              const numImages = {{Image_num}};
-          
+            
+              // 이미지 URL들을 Flask에서 받아옵니다.
+              const imageURLs = {{URLs|tojson|safe}};
+            
               // Get the container element where the carousel will be added
               const carouselContainer = document.getElementById('carousel-container');
-          
+            
               // Generate HTML for the carousel and add it to the container
-              carouselContainer.innerHTML = generateCarouselHTML(numImages);
+              carouselContainer.innerHTML = generateCarouselHTML(imageURLs);
+            
+              // Lazy loading 스크립트
+              document.addEventListener("DOMContentLoaded", function () {
+                const lazyImages = document.querySelectorAll(".lazy");
+            
+                if ("IntersectionObserver" in window) {
+                  const observer = new IntersectionObserver(function (entries, observer) {
+                    entries.forEach(function (entry) {
+                      if (entry.isIntersecting) {
+                        const lazyImage = entry.target;
+                        lazyImage.src = lazyImage.dataset.src;
+                        lazyImage.classList.remove("lazy");
+                        observer.unobserve(lazyImage);
+                      }
+                    });
+                  });
+            
+                  lazyImages.forEach(function (lazyImage) {
+                    observer.observe(lazyImage);
+                  });
+                } else {
+                  // IntersectionObserver가 지원되지 않는 경우에는 모든 이미지를 즉시 로딩
+                  lazyImages.forEach(function (lazyImage) {
+                    lazyImage.src = lazyImage.dataset.src;
+                    lazyImage.classList.remove("lazy");
+                  });
+                }
+              });
             </script>
+                                                                        
+            
+            
 
             <!-- Slider controls -->
             <button type="button" class="absolute top-0 start-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-prev>
@@ -640,7 +677,7 @@
     </main>
   </div>
 
-  <script src='https://flowbite.com/docs/flowbite.min.js'></script>
+  <script src='static/styles/flowbite.min.js'></script>
   <!--script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script-->
 </body>
 </html>
