@@ -191,7 +191,7 @@ def home():
 
                 something_doing = False
                 print('something_doing = False : 192')
-                return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data)
+                return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, URLs = URLs)
             
             #재고 현황 파악
             for shop in shop_list:
