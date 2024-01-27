@@ -193,7 +193,9 @@ def home():
                 print('something_doing = False : 192')
                 return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, URLs = URLs)
             
+            
             #재고 현황 파악
+            start_time = time.time()
             for shop in shop_list:
                 stock_data[shop] = getby(workbook, shop, model, cloth_type, is_stock = True)
             stock_data['size'] = size[cloth_type]
@@ -201,9 +203,12 @@ def home():
             stock_data['계'] = [sum(val if isinstance(val, (int, float)) else 0 for val in column) if any(isinstance(val, (int, float)) for val in column) else None for column in zip(*list(stock_data.values())[1:-1])]
             for key, values in stock_data.items():
                 stock_data[key] = [value if value is not None else "" for value in values]
-
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"재고현황파악 시간: {elapsed_time:.2f} 초")
 
             #판매 현황 파악
+            start_time = time.time()
             for shop in shop_list:
                 sell_data[shop] = getby(workbook, shop, model, cloth_type, is_stock = False)
             sell_data['size'] = size[cloth_type]
@@ -211,20 +216,36 @@ def home():
             sell_data['계'] = [sum(val if isinstance(val, (int, float)) else 0 for val in column) if any(isinstance(val, (int, float)) for val in column) else None for column in zip(*list(sell_data.values())[1:-1])]
             for key, values in sell_data.items():
                 sell_data[key] = [value if value is not None else "" for value in values]
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"판매현황파악 시간: {elapsed_time:.2f} 초")
 
             #임시 창고 재고 파악
+            start_time = time.time()
             ware_data['창고'] = getby(workbook, '창고', model, cloth_type, is_stock = True)
             for key, values in ware_data.items():
                 ware_data[key] = [value if value is not None else "" for value in values]
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"임시창고재고파악 시간: {elapsed_time:.2f} 초")
 
             #이미지 다운로드
             #Image_num = getImage(model, resource_path("static/images"))
             #URL TEST
+            start_time = time.time()
             URLs = check_urls_parallel(getImage(model, '', only_URLs=True))
             #URLs = ['https://lsco.scene7.com/is/image/lsco/288331183-front-pdp-lse?fmt=avif&qlt=40&resMode=bisharp&fit=crop,0&op_usm=0.6,0.6,8&wid=155&hei=155']
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"이미지 다운로드 시간: {elapsed_time:.2f} 초")
 
+            start_time = time.time()
             MSRP = Myfunctions.format_price(getMSRP(workbook, model, cloth_type))
             Season = getSeason(workbook, model, cloth_type)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"MSRP, Season 시간: {elapsed_time:.2f} 초")
+
         else:
             model = '입력...'
     something_doing = False
