@@ -5,7 +5,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('./DB', 'DB'),
+    datas=[('./DB/dummyforfoldercheck.txt', 'DB'),
     ('./googlefile', 'googlefile'),
     ('./services', 'services'),
     ('./static', 'static'),
