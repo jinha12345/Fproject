@@ -17,8 +17,8 @@ from util import resource_path
 import signal
 from flask_socketio import SocketIO, emit
 import time
-from getImage import getImage, check_urls_parallel
-#import asyncio
+from getImage import getImage, check_urls_parallel, a_check_urls_parallel_inner
+import asyncio
 #import threading
 
 shop_list = ['NC불광', 'MD구리', 'TO분당', 'LT청주', 'MD부평', 'NC청주', 'NC송파', 'MD천안']
@@ -37,6 +37,11 @@ socketio = SocketIO(app)
 
 pong = False
 something_doing = False
+
+async def check_urls_app(URLs):
+    result = await a_check_urls_parallel_inner(URLs)
+    print("Valid URLs:", result)
+    return result
 
 #Printing base dir for debugging
 #print(f'base_dir = {base_dir}')
@@ -239,7 +244,19 @@ def home():
             print(f"getImage() 시간: {elapsed_time:.2f} 초")
 
             start_time = time.time()
-            URLs = check_urls_parallel(URLs)
+            ###################
+
+
+            #기존
+            #URLs = check_urls_parallel(URLs)
+
+
+
+            #새로운것
+            URLs = asyncio.run(check_urls_app(URLs))
+
+
+            ####################
             #URLs = ['https://lsco.scene7.com/is/image/lsco/288331183-front-pdp-lse?fmt=avif&qlt=40&resMode=bisharp&fit=crop,0&op_usm=0.6,0.6,8&wid=155&hei=155']
             end_time = time.time()
             elapsed_time = end_time - start_time

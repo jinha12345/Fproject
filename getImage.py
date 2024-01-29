@@ -4,6 +4,12 @@ from concurrent.futures import ThreadPoolExecutor
 import time
 import threading
 import concurrent.futures
+import asyncio
+import aiohttp
+import time
+import nest_asyncio
+
+nest_asyncio.apply()
 
 def getImage(model, image_path, only_URLs = False):
     #time.sleep(10)
@@ -91,7 +97,14 @@ def download_images_parallel(urls, folder_path, num_threads=32):
     
 def is_url_valid(url):
     try:
-        response = requests.head(url, timeout=5)
+        s = time.time()
+        response = requests.head(url, timeout=0.2)
+        e = time.time()
+        print(f'url : {url}')
+        print(f'valid : {response}')
+        print(f'time : {e-s} sec')
+        print("threads : ", threading.active_count())
+        print()
         return response.status_code == 200
     except requests.exceptions.RequestException:
         return False
@@ -117,9 +130,50 @@ def check_urls(urls):
             valid_urls.append(i)
     return valid_urls
 
+async def a_is_url_valid(url, session):
+    try:
+        s = time.time()
+        async with session.head(url, timeout = 0.2) as response:
+            e = time.time()
+            print(f'url : {url}')
+            print(f'valid : {response.status}')
+            print(f'time : {e-s} sec')
+            print()
+            return response.status == 200
+    except aiohttp.ClientError:
+        return False
+    except asyncio.TimeoutError:
+        #print(f"Timeout checking URL {url}")
+        return False
+
+async def a_check_urls_parallel_inner(urls):
+    valid_urls = []
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        async with aiohttp.ClientSession() as session:
+            tasks = [a_is_url_valid(url, session) for url in urls]
+            results = await asyncio.gather(*tasks)
+            valid_urls = [url for url, result in zip(urls, results) if result]
+            return valid_urls
+    finally:
+        loop.close()
+
 # 테스트를 위한 URLs
-URLs = getImage('A7223-0002', '', True)
-print(check_urls(URLs))
-print(check_urls_parallel(URLs))
+#URLs = getImage('A7223-0002', '', True)
+#print(check_urls(URLs))
+'''
+s = time.time()
+print(len(check_urls_parallel(URLs)))
+e = time.time()
+print(e-s)
+'''
+async def a_check_urls_parallel(urls):
+    loop = asyncio.get_event_loop()
+    result = await loop.run_until_complete(a_check_urls_parallel_inner(urls))
+    loop.close()
+    return result
+
+#a_check_urls_parallel(URLs)
 #valid_urls = check_urls_parallel(URLs)
 #print("Valid URLs:", valid_urls)
