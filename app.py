@@ -9,7 +9,6 @@ import openpyxl
 from getfromDB import getby, getMSRP, getSeason, isThere
 import copy
 import Myfunctions
-from Myfunctions import load_specific_sheets
 import webbrowser
 import os
 from pathlib import Path
@@ -18,7 +17,7 @@ from util import resource_path
 import signal
 from flask_socketio import SocketIO, emit
 import time
-from getImage import getImage, check_urls_parallel, a_check_urls_parallel_inner
+from getImage import getImage, a_check_urls_parallel_inner
 import asyncio
 #import threading
 
@@ -120,7 +119,7 @@ def home():
             for shop in shop_list:
                 stock_data[shop] = getby(workbook, shop, model, cloth_type, is_stock = True)
             stock_data['size'] = size[cloth_type]
-            print(stock_data)
+            #print(stock_data)
             stock_data['계'] = [sum(val if isinstance(val, (int, float)) else 0 for val in column) if any(isinstance(val, (int, float)) for val in column) else None for column in zip(*list(stock_data.values())[1:-1])]
             for key, values in stock_data.items():
                 stock_data[key] = [value if value is not None else "" for value in values]
@@ -133,7 +132,7 @@ def home():
             for shop in shop_list:
                 sell_data[shop] = getby(workbook, shop, model, cloth_type, is_stock = False)
             sell_data['size'] = size[cloth_type]
-            print(sell_data)
+            #print(sell_data)
             sell_data['계'] = [sum(val if isinstance(val, (int, float)) else 0 for val in column) if any(isinstance(val, (int, float)) for val in column) else None for column in zip(*list(sell_data.values())[1:-1])]
             for key, values in sell_data.items():
                 sell_data[key] = [value if value is not None else "" for value in values]
@@ -282,15 +281,7 @@ if __name__ == '__main__':
 
     #이건 실사용시 불러올 workbook
     getStockxl('DB')
-    s = time.time()
     workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
-    e = time.time()
-    print(e-s)
-
-    s = time.time()
-    workbook = load_specific_sheets(resource_path("DB/DB.xlsm"), ['acc', 'btm', 'top'])
-    e = time.time()
-    print(e-s)
 
     #이건 디버깅시 불러올 workbook
     #workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
