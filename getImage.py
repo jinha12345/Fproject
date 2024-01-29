@@ -133,7 +133,7 @@ def check_urls(urls):
 async def a_is_url_valid(url, session):
     try:
         s = time.time()
-        async with session.head(url, timeout = 0.2) as response:
+        async with session.head(url, timeout = 1) as response:
             e = time.time()
             print(f'url : {url}')
             print(f'valid : {response.status}')
