@@ -110,7 +110,16 @@ def check_urls_parallel(urls):
                 print(f"Error checking URL {url}: {e}")
     return valid_urls
 
+def check_urls(urls):
+    valid_urls = []
+    for i in urls:
+        if is_url_valid(i):
+            valid_urls.append(i)
+    return valid_urls
+
 # 테스트를 위한 URLs
 URLs = getImage('A7223-0002', '', True)
+print(check_urls(URLs))
+print(check_urls_parallel(URLs))
 #valid_urls = check_urls_parallel(URLs)
 #print("Valid URLs:", valid_urls)

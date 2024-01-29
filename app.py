@@ -233,12 +233,19 @@ def home():
             #Image_num = getImage(model, resource_path("static/images"))
             #URL TEST
             start_time = time.time()
-            URLs = check_urls_parallel(getImage(model, '', only_URLs=True))
+            URLs = getImage(model, '', only_URLs=True)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"getImage() 시간: {elapsed_time:.2f} 초")
+
+            start_time = time.time()
+            URLs = check_urls_parallel(URLs)
             #URLs = ['https://lsco.scene7.com/is/image/lsco/288331183-front-pdp-lse?fmt=avif&qlt=40&resMode=bisharp&fit=crop,0&op_usm=0.6,0.6,8&wid=155&hei=155']
             end_time = time.time()
             elapsed_time = end_time - start_time
-            print(f"이미지 다운로드 시간: {elapsed_time:.2f} 초")
+            print(f"check_url_parallel 시간: {elapsed_time:.2f} 초")
 
+            #ddsk
             start_time = time.time()
             MSRP = Myfunctions.format_price(getMSRP(workbook, model, cloth_type))
             Season = getSeason(workbook, model, cloth_type)
