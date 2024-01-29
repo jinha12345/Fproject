@@ -44,7 +44,7 @@ async def check_urls_app(URLs):
     return result
 
 #Printing base dir for debugging
-#print(f'base_dir = {base_dir}')
+print(f'base_dir = {base_dir}')
 
 
 @app.route('/')
@@ -277,13 +277,13 @@ def handle_pong():
 
 if __name__ == '__main__':
     #JsonKey를 drive, temp, appdata 동기화
-    #JsonKeySync()
+    JsonKeySync()
 
     #이건 실사용시 불러올 workbook
     getStockxl('DB')
     workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
 
-    #이건 디버깅시 불러올 workbook
+    #이건 디버깅시 불러올 workbook#
     #workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
 
     webbrowser.open('http://127.0.0.1:5000/')
