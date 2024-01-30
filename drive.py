@@ -17,6 +17,7 @@ import re
 import unicodedata
 from util import resource_path
 import shutil
+from error import *
 
 CREDENTIAL_DIR = resource_path('./googlefile')
 CREDENTIAL_FILENAME = 'drive-python-download.json'
@@ -279,4 +280,4 @@ def JsonKeySync():
             JsonKeyDrive2Temp(resource_path("googlefile"))
             JsonKeyTemp2Appdata()
         except HttpAccessTokenRefreshError as e:
-            print(f"임시 및 appdata 토큰 만료. 파일을 다시 받아주십시오.: {e}")
+            raise TokenExpireError
