@@ -7,6 +7,7 @@ from googleapiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+from oauth2client.client import HttpAccessTokenRefreshError
 
 import io
 from googleapiclient.http import MediaIoBaseDownload
@@ -268,6 +269,14 @@ def JsonKeyTemp2Appdata():
         print("There is no drive-python-download.json in temp.")
 
 def JsonKeySync():
-    JsonKeyAppdata2Temp()
-    JsonKeyDrive2Temp(resource_path("googlefile"))
-    JsonKeyTemp2Appdata()
+    try:
+        JsonKeyDrive2Temp(resource_path("googlefile"))
+        JsonKeyTemp2Appdata()
+    except HttpAccessTokenRefreshError as e:
+        try:
+            print(f"임시 토큰 만료. 업데이트를 진행합니다.: {e}")
+            JsonKeyAppdata2Temp()
+            JsonKeyDrive2Temp(resource_path("googlefile"))
+            JsonKeyTemp2Appdata()
+        except HttpAccessTokenRefreshError as e:
+            print(f"임시 및 appdata 토큰 만료. 파일을 다시 받아주십시오.: {e}")
