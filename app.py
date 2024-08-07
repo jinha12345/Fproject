@@ -278,7 +278,6 @@ def handle_pong():
 if __name__ == '__main__':
     #JsonKey를 drive, temp, appdata 동기화
     JsonKeySync()
-
     #이건 실사용시 불러올 workbook
     getStockxl('DB')
     workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)

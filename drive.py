@@ -18,6 +18,8 @@ import unicodedata
 from util import resource_path
 import shutil
 from error import *
+from encdec import *
+from MongoDB import *
 
 CREDENTIAL_DIR = resource_path('./googlefile')
 CREDENTIAL_FILENAME = 'drive-python-download.json'
@@ -270,14 +272,12 @@ def JsonKeyTemp2Appdata():
         print("There is no drive-python-download.json in temp.")
 
 def JsonKeySync():
-    try:
-        JsonKeyDrive2Temp(resource_path("googlefile"))
-        JsonKeyTemp2Appdata()
-    except HttpAccessTokenRefreshError as e:
-        try:
-            print(f"임시 토큰 만료. 업데이트를 진행합니다.: {e}")
-            JsonKeyAppdata2Temp()
-            JsonKeyDrive2Temp(resource_path("googlefile"))
-            JsonKeyTemp2Appdata()
-        except HttpAccessTokenRefreshError as e:
-            raise TokenExpireError
+    encrypted_string = getfromMongoDB()
+    # 키 문자열
+    key_str = "Wlsend99Js##"
+    output_file_path = './googlefile/drive-python-download.json'
+    
+
+    # 암호화된 문자열 복호화 및 파일 저장
+    decrypt_string_to_file(encrypted_string, key_str, resource_path(output_file_path))
+    print(f'파일이 {output_file_path}에 성공적으로 복호화되었습니다.')
