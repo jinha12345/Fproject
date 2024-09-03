@@ -277,7 +277,7 @@ def handle_pong():
 
 if __name__ == '__main__':
     #Debugging시 바꿔주십시오.
-    Debug = True
+    Debug = False
 
     if Debug:
         workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)

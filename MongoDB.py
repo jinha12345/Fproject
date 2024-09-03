@@ -8,10 +8,10 @@ def getfromMongoDB():
     global uri, client
 
     # 데이터베이스 선택
-    db = client.my_database
+    db = client.Fproject
 
     # 컬렉션 선택
-    collection = db.my_collection
+    collection = db.json
 
     # 첫 번째 문서 조회
     first_document = collection.find_one()

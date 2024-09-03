@@ -273,11 +273,9 @@ def JsonKeyTemp2Appdata():
 
 def JsonKeySync():
     encrypted_string = getfromMongoDB()
-    # 키 문자열
-    key_str = "Wlsend99Js##"
-    output_file_path = './googlefile/drive-python-download.json'
+    output_file_path = './googlefile'
     
 
     # 암호화된 문자열 복호화 및 파일 저장
-    decrypt_string_to_file(encrypted_string, key_str, resource_path(output_file_path))
+    decrypt_string_to_file(encrypted_string, resource_path(output_file_path))
     print(f'파일이 {output_file_path}에 성공적으로 복호화되었습니다.')
