@@ -21,7 +21,7 @@ from getImage import getImage, a_check_urls_parallel_inner
 import asyncio
 #import threading
 
-shop_list = ['NC불광', 'MD구리', 'TO분당', 'LT청주', 'MD부평', 'NC청주', 'NC송파', 'MD천안']
+shop_list = ['NC불광', 'MD구리', 'TO분당', 'M춘천', 'MD부평', 'NC청주', 'NC송파', 'MD천안']
 
 login_check = False
 
@@ -77,7 +77,7 @@ def home():
                     'NC불광': ["", "", "", "", "", "", "", ""],
                     'MD구리': ["", "", "", "", "", "", "", ""],
                     'TO분당': ["", "", "", "", "", "", "", ""],
-                    'LT청주': ["", "", "", "", "", "", "", ""],
+                    'M춘천' : ["", "", "", "", "", "", "", ""],
                     'MD부평': ["", "", "", "", "", "", "", ""],
                     'NC청주': ["", "", "", "", "", "", "", ""],
                     'NC송파': ["", "", "", "", "", "", "", ""],
@@ -276,14 +276,15 @@ def handle_pong():
 
 
 if __name__ == '__main__':
-    #JsonKey를 drive, temp, appdata 동기화
-    JsonKeySync()
-    #이건 실사용시 불러올 workbook
-    getStockxl('DB')
-    workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
+    #Debugging시 바꿔주십시오.
+    Debug = True
 
-    #이건 디버깅시 불러올 workbook#
-    #workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
+    if Debug:
+        workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
+    else:
+        JsonKeySync()
+        getStockxl('DB')
+        workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
 
-    webbrowser.open('http://127.0.0.1:5000/')
-    socketio.run(app, host='0.0.0.0', port=5000, debug=False, use_reloader=False, allow_unsafe_werkzeug=True)
+    webbrowser.open('http://127.0.0.1:7777/')
+    socketio.run(app, host='0.0.0.0', port=7777, debug=False, use_reloader=False, allow_unsafe_werkzeug=True)
