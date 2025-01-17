@@ -21,7 +21,7 @@ from getImage import getImage, a_check_urls_parallel_inner
 import asyncio
 #import threading
 
-shop_list = ['NC불광', 'MD구리', 'TO분당', 'M춘천', 'MD부평', 'NC청주', 'NC송파', 'MD천안']
+shop_list = ['NC불광', 'MD구리', 'TO분당', 'M춘천', 'MD부평', 'NC고잔', 'NC송파', 'MD천안']
 
 login_check = False
 
@@ -79,7 +79,7 @@ def home():
                     'TO분당': ["", "", "", "", "", "", "", ""],
                     'M춘천' : ["", "", "", "", "", "", "", ""],
                     'MD부평': ["", "", "", "", "", "", "", ""],
-                    'NC청주': ["", "", "", "", "", "", "", ""],
+                    'NC고잔': ["", "", "", "", "", "", "", ""],
                     'NC송파': ["", "", "", "", "", "", "", ""],
                     'MD천안': ["", "", "", "", "", "", "", ""],
                     '계'   : ["", "", "", "", "", "", "", ""]}
@@ -277,7 +277,7 @@ def handle_pong():
 
 if __name__ == '__main__':
     #Debugging시 바꿔주십시오.
-    Debug = True
+    Debug = False
 
     if Debug:
         workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)

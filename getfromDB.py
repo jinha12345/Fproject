@@ -8,7 +8,7 @@ def getby(workbook, location, model, cloth_type, is_stock):
         'TO분당': {'btm': ('OD', 'OJ'), 'top': ('KL', 'KP'), 'acc': ('JS', 'JW')},
         'M춘천': {'btm': ('PB', 'PH'), 'top': ('LD', 'LH'), 'acc': ('KK', 'KO')},
         'MD부평': {'btm': ('OL', 'OR'), 'top': ('KR', 'KV'), 'acc': ('JY', 'KC')},
-        'NC청주': {'btm': ('OT', 'OZ'), 'top': ('KX', 'LB'), 'acc': ('KE', 'KI')},
+        'NC고잔': {'btm': ('OT', 'OZ'), 'top': ('KX', 'LB'), 'acc': ('KE', 'KI')},
         'NC송파': {'btm': ('PJ', 'PP'), 'top': ('LJ', 'LN'), 'acc': ('KQ', 'KU')},
         'MD천안': {'btm': ('PR', 'PX'), 'top': ('LP', 'LT'), 'acc': ('KW', 'LA')},
         '창고'  : {'btm': ('NN', 'NT'), 'top': ('JZ', 'KD'), 'acc': ('JG', 'JK')}
@@ -20,7 +20,7 @@ def getby(workbook, location, model, cloth_type, is_stock):
         'TO분당': {'btm': ('LI', 'LO'), 'top': ('II', 'IM'), 'acc': ('HP', 'HT')},
         'M춘천': {'btm': ('MG', 'MM'), 'top': ('JA', 'JE'), 'acc': ('IH', 'IL')},
         'MD부평': {'btm': ('LQ', 'LW'), 'top': ('IO', 'IS'), 'acc': ('HV', 'HZ')},
-        'NC청주': {'btm': ('LY', 'ME'), 'top': ('IU', 'IY'), 'acc': ('IB', 'IF')},
+        'NC고잔': {'btm': ('LY', 'ME'), 'top': ('IU', 'IY'), 'acc': ('IB', 'IF')},
         'NC송파': {'btm': ('MO', 'MU'), 'top': ('JG', 'JK'), 'acc': ('IN', 'IR')},
         'MD천안': {'btm': ('MW', 'NC'), 'top': ('JM', 'JQ'), 'acc': ('IT', 'IX')}
     }
