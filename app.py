@@ -161,7 +161,6 @@ def home():
             elapsed_time = end_time - start_time
             print(f"check_url_parallel 시간: {elapsed_time:.2f} 초")
 
-            #ddsk
             start_time = time.time()
             MSRP = Myfunctions.format_price(getMSRP(workbook, model, cloth_type))
             Season = getSeason(workbook, model, cloth_type)
@@ -173,7 +172,7 @@ def home():
             model = '입력...'
     something_doing = False
     print('something_doing = False : 227')
-    return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, URLs = URLs)
+    return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, URLs = URLs, Modified_Time = Modified_Time)
 
 
 @app.route('/login', methods = [ "GET", "POST"])
@@ -280,11 +279,14 @@ if __name__ == '__main__':
     Debug = False
 
     if Debug:
+        Modified_Time = 'Debug Mode'
         workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
     else:
         JsonKeySync()
-        getStockxl('DB')
+        Modified_Time = getStockxl('DB')
         workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
 
+    print(Modified_Time)
+
     webbrowser.open('http://127.0.0.1:7777/')
-    socketio.run(app, host='0.0.0.0', port=7777, debug=False, use_reloader=False, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=7777, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)

@@ -20,6 +20,7 @@ import shutil
 from error import *
 from encdec import *
 from MongoDB import *
+from datetime import datetime, timedelta
 
 CREDENTIAL_DIR = resource_path('./googlefile')
 CREDENTIAL_FILENAME = 'drive-python-download.json'
@@ -118,7 +119,7 @@ def getStockxl(save_directory):
     file_pattern = re.compile(r'^재고관리표M\((\d{6})\)RT\.xlsm$')
 
     # 모든 파일 목록 가져오기
-    results = service.files().list().execute()
+    results = service.files().list(fields="files(id, name, modifiedTime)").execute()
     files = results.get('files', [])
 
     # 매칭되는 파일 목록 출력
@@ -149,11 +150,25 @@ def getStockxl(save_directory):
 
                 # 최신 파일인지 확인
                 if not latest_file_info or file_date > latest_file_info['date']:
-                    latest_file_info = {'name': file_name, 'date': file_date, 'id': file_info['id']}
+                    latest_file_info = {'name': file_name, 'date': file_date, 'id': file_info['id'], 'modifiedTime': file_info['modifiedTime']}
 
         if latest_file_info:
             print(f'\nLatest Stock File: "{latest_file_info["name"]}", Date: {latest_file_info["date"]}')
             download_file(service, latest_file_info['id'], latest_file_info['name'], save_directory=resource_path(save_directory), save_as_name="DB.xlsm")
+
+            # Modified_Time 변수 (UTC 시간으로 주어진 값)
+            modified_time = latest_file_info['modifiedTime']
+
+            # UTC 시간 문자열을 datetime 객체로 변환
+            utc_time = datetime.strptime(modified_time, "%Y-%m-%dT%H:%M:%S.%fZ")
+
+            # UTC에서 한국 표준시(KST, UTC+9)로 변환
+            kst_time = utc_time + timedelta(hours=9)
+
+            # KST 시간을 원하는 형식의 문자열로 변환
+            kst_time_str = kst_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            return kst_time_str
         else:
             print('\nNo matching files found.')
     else:
