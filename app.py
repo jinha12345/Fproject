@@ -230,6 +230,18 @@ def passwordgen():
     print('something_doing = False : 339')
     return render_template('passwordgen.html')
 
+@app.route('/update', methods = [ "GET", "POST"])
+def update():
+    global Modified_Time
+    global workbook
+    global something_doing
+    something_doing = True
+
+    Modified_Time = getStockxl('DB')
+    workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
+    something_doing = False
+    return redirect(url_for('home'))
+
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -276,7 +288,7 @@ def handle_pong():
 
 if __name__ == '__main__':
     #Debugging시 바꿔주십시오.
-    Debug = False
+    Debug = True
 
     if Debug:
         Modified_Time = 'Debug Mode'
@@ -289,4 +301,4 @@ if __name__ == '__main__':
     print(Modified_Time)
 
     webbrowser.open('http://127.0.0.1:7777/')
-    socketio.run(app, host='0.0.0.0', port=7777, debug=True, use_reloader=False, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=7777, debug=Debug, use_reloader=False, allow_unsafe_werkzeug=True)

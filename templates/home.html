@@ -33,6 +33,18 @@
               <div class="flex items-center ms-3">
                 <div>
                   <div class="flex items-center">
+                    <style>
+                      li::marker {
+                        content: none; /* 마커 콘텐츠 제거 */
+                      }
+                    </style>
+                    <li>
+                      <a href="/update" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                      </a>
+                    </li>
                     <!-- 텍스트 추가 -->
                     <span class="self-center whitespace-nowrap dark:text-white mr-3">{{'DB 업데이트 시간 : '+ Modified_Time}}</span>
                     
