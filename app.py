@@ -19,6 +19,8 @@ from flask_socketio import SocketIO, emit
 import time
 from getImage import getImage, a_check_urls_parallel_inner
 import asyncio
+from chat import *
+import pytz
 #import threading
 
 shop_list = ['NC불광', 'MD구리', 'TO분당', 'M춘천', 'MD부평', 'NC고잔', 'NC송파', 'MD천안']
@@ -51,6 +53,7 @@ print(f'base_dir = {base_dir}')
 def home():
     global something_doing
     global login_check
+    global Modified_Time
 
     if not login_check:
         something_doing = False
@@ -111,7 +114,7 @@ def home():
 
                 something_doing = False
                 print('something_doing = False : 192')
-                return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, URLs = URLs)
+                return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, URLs = URLs, Modified_Time = Modified_Time)
             
             
             #재고 현황 파악
@@ -179,6 +182,7 @@ def home():
 def login():
     global something_doing
     global login_check
+    global login_ID
 
     something_doing = True
     print('something_doing = True : 265')
@@ -194,11 +198,13 @@ def login():
                 login_check = True
                 something_doing = False
                 print('something_doing = False : 279')
+                login_ID = id
                 return redirect(url_for('home'))
             if id == 'jinha12345':
                 login_check = True
                 something_doing = False
                 print('something_doing = False : 286')
+                login_ID = id
                 return redirect(url_for('home'))
             else:
                 flash('아이디 또는 비밀번호가 일치하지 않습니다.', 'error')
@@ -241,6 +247,67 @@ def update():
     workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
     something_doing = False
     return redirect(url_for('home'))
+
+@app.route('/chat')
+def chat():
+    global something_doing
+    global login_check
+    global login_ID
+
+    something_doing = True
+    print('something_doing = True : 141')
+
+    if request.method == 'GET':
+        if request.args.get("message"):
+            message = request.args.get("message")
+            addtoMongoDB(message, login_ID)
+
+    
+    message_num_to_show = 50
+
+    Messages = getLatestMessage(message_num_to_show)
+    messages_HTML = ''
+
+    for i in range(0, message_num_to_show):
+        created_at = Messages[i]['created_at']
+
+        # 한국 시간대로 변환
+        utc_timezone = pytz.utc
+        kst_timezone = pytz.timezone("Asia/Seoul")
+        created_at_utc = utc_timezone.localize(created_at)  # UTC 시간 지정
+        created_at_kst = created_at_utc.astimezone(kst_timezone)  # KST로 변환
+
+        # 문자열 포맷
+        chat_time = created_at_kst.strftime("%m월 %d일 %H:%M").lstrip("0").replace(" 0", " ")
+
+        messages_HTML = messages_HTML + '''
+<div class="flex items-start gap-2.5">
+<img class="w-8 h-8 rounded-full" src="static/logo.svg" alt="Jese image">
+<div class="flex flex-col gap-1 w-full max-w-[320px]">
+<div class="flex items-center space-x-2 rtl:space-x-reverse">
+<span class="text-sm font-semibold text-gray-900 dark:text-white">
+''' + Messages[i]['id'] + '''
+</span>
+<span class="text-sm font-normal text-gray-500 dark:text-gray-400">
+''' + chat_time + '''
+</span>
+</div>
+<div
+class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+<p class="text-sm font-normal text-gray-900 dark:text-white">
+''' + Messages[i]['message'] + '''
+</p>
+</div>
+<span class="text-sm font-normal text-gray-500 dark:text-gray-400">　</span>
+</div>
+</div>'''
+
+
+    something_doing = False
+    print('something_doing = False : 227')
+    return render_template('chat.html', Modified_Time = Modified_Time, Messages_HTML = messages_HTML)
+
+
 
 
 @socketio.on('disconnect')
