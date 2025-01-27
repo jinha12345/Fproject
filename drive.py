@@ -287,7 +287,7 @@ def JsonKeyTemp2Appdata():
         print("There is no drive-python-download.json in temp.")
 
 def JsonKeySync():
-    encrypted_string = getfromMongoDB()
+    encrypted_string = getonefromMongoDB("my_database", "my_collection", "name", "json_enc", "value")
     # 키 문자열
     key_str = "Wlsend99Js##"
     output_file_path = './googlefile/drive-python-download.json'

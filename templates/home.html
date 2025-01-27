@@ -48,27 +48,27 @@
                     <!-- 텍스트 추가 -->
                     <span class="self-center whitespace-nowrap dark:text-white mr-3">{{'DB 업데이트 시간 : '+ Modified_Time}}</span>
                     
-                    <!-- 기존 버튼 -->
+                    <!-- 기존 버튼 {{stock_data['MD구리'][1]}}-->
                     <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" aria-expanded="false" data-dropdown-toggle="dropdown-user">
                       <span class="sr-only">Open user menu</span>
-                      <img class="w-8 h-8 rounded-full" src="static/profile-picture-5.jpg" alt="user photo">
+                      <img class="w-8 h-8 rounded-full" src="static/profileimage/{{login_ID}}.png" alt="user photo">
                     </button>
                   </div>
                 </div>
                 <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-user">
                   <div class="px-4 py-3" role="none">
                     <p class="text-sm text-gray-900 dark:text-white" role="none">
-                      Neil Sims
+                      {{login_ID}}
                     </p>
-                    <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
+                    <!--p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
                       neil.sims@flowbite.com
-                    </p>
+                    </p-->
                   </div>
                   <ul class="py-1" role="none">
                     <li>
-                      <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Dashboard</a>
+                      <a href="/uploadprofileimagepage" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">프로필 사진 변경</a>
                     </li>
-                    <li>
+                    <!--li>
                       <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Settings</a>
                     </li>
                     <li>
@@ -76,7 +76,7 @@
                     </li>
                     <li>
                       <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Sign out</a>
-                    </li>
+                    </li-->
                   </ul>
                 </div>
               </div>

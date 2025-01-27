@@ -1,6 +1,10 @@
 #pyinstaller -F -w app.py <- F는 파일하나. w는 윈도우 없이
 #pyinstaller app.spec <- packaging code
 #5770097152 <- Password
+#acc : D6270-0002
+#btm : A8720-0000
+#top : 35883-0003
+
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from password import passgen
@@ -21,11 +25,13 @@ from getImage import getImage, a_check_urls_parallel_inner
 import asyncio
 from chat import *
 import pytz
+from profileimage import  *
 #import threading
 
 shop_list = ['NC불광', 'MD구리', 'TO분당', 'M춘천', 'MD부평', 'NC고잔', 'NC송파', 'MD천안']
 
 login_check = False
+login_ID = None
 
 base_dir = '.'
 if hasattr(sys, '_MEIPASS'):
@@ -54,6 +60,17 @@ def home():
     global something_doing
     global login_check
     global Modified_Time
+    global login_ID
+
+    print(login_ID)
+    print(login_ID)
+    print(login_ID)
+    print(login_ID)
+    print(login_ID)
+    print(login_ID)
+    print(login_ID)
+    print(login_ID)
+
 
     if not login_check:
         something_doing = False
@@ -114,7 +131,7 @@ def home():
 
                 something_doing = False
                 print('something_doing = False : 192')
-                return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, URLs = URLs, Modified_Time = Modified_Time)
+                return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, URLs = URLs, Modified_Time = Modified_Time, login_ID = login_ID)
             
             
             #재고 현황 파악
@@ -175,7 +192,7 @@ def home():
             model = '입력...'
     something_doing = False
     print('something_doing = False : 227')
-    return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, URLs = URLs, Modified_Time = Modified_Time)
+    return render_template('home.html', stock_data = stock_data, sell_data = sell_data, MSRP = MSRP, Season = Season, model = model, cloth_type = cloth_type_original, invalidity = invalidity, ware_data = ware_data, URLs = URLs, Modified_Time = Modified_Time, login_ID = login_ID)
 
 
 @app.route('/login', methods = [ "GET", "POST"])
@@ -248,6 +265,18 @@ def update():
     something_doing = False
     return redirect(url_for('home'))
 
+@app.route('/uploadprofileimagepage', methods = [ "GET", "POST"])
+def uploadprofileimagepage():
+    global login_ID
+    global something_doing
+    something_doing = True
+
+    UploadProfileImage(login_ID)
+    DownloadProfileImage()
+
+    something_doing = False
+    return redirect(url_for('home'))
+
 @app.route('/chat')
 def chat():
     global something_doing
@@ -269,6 +298,18 @@ def chat():
     messages_HTML = ''
 
     for i in range(0, message_num_to_show):
+
+        folder_path = resource_path('./static/profileimage')
+    
+        file_name = f"{Messages[i]['id']}.png"
+        file_path = os.path.join(folder_path, file_name)
+        
+        # 파일 존재 여부 확인 및 출력
+        if os.path.exists(file_path):
+            profile_image_path = 'static/profileimage/'+ Messages[i]['id'] +'.png'
+        else:
+            profile_image_path = 'static/profileimage/Basic_Profile.png'
+
         created_at = Messages[i]['created_at']
 
         # 한국 시간대로 변환
@@ -282,7 +323,9 @@ def chat():
 
         messages_HTML = messages_HTML + '''
 <div class="flex items-start gap-2.5">
-<img class="w-8 h-8 rounded-full" src="static/logo.svg" alt="Jese image">
+<img class="w-8 h-8 rounded-full" src="
+''' + profile_image_path + '''
+" alt="Jese image">
 <div class="flex flex-col gap-1 w-full max-w-[320px]">
 <div class="flex items-center space-x-2 rtl:space-x-reverse">
 <span class="text-sm font-semibold text-gray-900 dark:text-white">
@@ -305,7 +348,7 @@ class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl ro
 
     something_doing = False
     print('something_doing = False : 227')
-    return render_template('chat.html', Modified_Time = Modified_Time, Messages_HTML = messages_HTML)
+    return render_template('chat.html', Modified_Time = Modified_Time, Messages_HTML = messages_HTML, login_ID = login_ID)
 
 
 
@@ -358,10 +401,15 @@ if __name__ == '__main__':
     Debug = True
 
     if Debug:
+        if False: #Keysync
+            JsonKeySync()
+        if True: #profile image downlaod
+            DownloadProfileImage()
         Modified_Time = 'Debug Mode'
         workbook = openpyxl.load_workbook(resource_path("DB/DB_fordebugging.xlsx"), data_only=True)
     else:
         JsonKeySync()
+        DownloadProfileImage()
         Modified_Time = getStockxl('DB')
         workbook = openpyxl.load_workbook(resource_path("DB/DB.xlsm"), data_only=True)
 
